@@ -45,7 +45,9 @@ public class SplashMenu
         private boolean upPressed = false;
         private boolean downPressed = false;
         private int keycounter = 0;
-
+        //sound
+        Player tune;
+        Player effect;
         private Class storedClass;
 
         public SplashMenu() throws IOException{
@@ -55,7 +57,7 @@ public class SplashMenu
             //  set the horizontal and vertical centers
             horCenter = getWidth()/2;
             vertCenter = getHeight()/2;
-            // TODO: make images into sprites!!
+
             //  load some images
             bgImg   =   Utils.loadImage("BG", BACKGROUND);
             rvImg   =   Utils.loadImage("retroHD", IMAGE);
@@ -87,9 +89,15 @@ public class SplashMenu
             hiscoreSp[1] = new Sprite(Utils.loadImage("hison",BUTTON));
 
             //  sound
-            Utils.playWav("tune.wav",storedClass);
-            Utils.playWav("starteffect.wav", storedClass);
 
+            tune = Utils.playWav("tune.wav", storedClass);
+            effect = Utils.playWav("starteffect.wav", storedClass);
+        try {
+            effect.start();
+            // set sprite positions
+        } catch (MediaException ex) {
+            ex.printStackTrace();
+        }
             // set sprite positions
 
             // off sprites
@@ -113,25 +121,26 @@ public class SplashMenu
 
         private void processKeys(){
 
-            if ((this.getKeyStates() & UP_PRESSED) !=0 ){
-                 if (keycounter==0)    menuChoice--;
-                 keycounter++;
-            }
-            if ((this.getKeyStates() & DOWN_PRESSED )!=0 ){
-                 if (keycounter==0)    menuChoice++;
-                 keycounter++;
-            }
-
-            if (menuChoice <0) menuChoice =3;
-            if (menuChoice >3) menuChoice =0;
-            if (keycounter >2){
-                keycounter=0;
-            }
-
+             
+                if (keycounter>10){
+                    if ((this.getKeyStates() & UP_PRESSED) !=0 ){
+                       menuChoice--;
+                       keycounter = 0;
+                    }
+                    if ((this.getKeyStates() & DOWN_PRESSED )!=0 ){
+                       menuChoice++;
+                       keycounter = 0;
+                    }
+                    
+                }
+                keycounter++;
+                if (menuChoice <0) menuChoice =3;
+                if (menuChoice >3) menuChoice =0;
+            
 
         }
 
-        public void updateMe(){
+        public void updateMe() throws MediaException{
 
             if (titleSp!=null && titlex > (horCenter-(titleImg.getWidth()/2)))
                 titlex-=2;
@@ -155,6 +164,7 @@ public class SplashMenu
                 }
             }
             else{
+                tune.start();
                 titleSp.setTransform(Sprite.TRANS_NONE);
             }
 
@@ -164,7 +174,7 @@ public class SplashMenu
         public void paint(){
             g.setColor(0, 255, 0);
             g.fillRect( 0, 0, getWidth(), getHeight());
-            g.drawImage(bgImg, 0, 0, g.LEFT | g.TOP);
+            g.drawImage(bgImg, 0, 0, Graphics.LEFT | Graphics.TOP);
             //  title animation for the startscreen
             if (titley >3)
             {
@@ -177,11 +187,10 @@ public class SplashMenu
             
             //draw decorations
             titleSp.paint(g);
-            g.drawImage(vImg, 0, 0, g.LEFT | g.TOP);
-            g.drawImage(rvImg, (horCenter*2) - rvImg.getWidth() , vertCenter+80, g.LEFT | g.TOP);
+            g.drawImage(vImg, 0, 0, Graphics.LEFT | Graphics.TOP);
+            g.drawImage(rvImg, (horCenter*2) - rvImg.getWidth() , vertCenter+80, Graphics.LEFT | Graphics.TOP);
             //draw buttons
 
-            //TODO: select case
             switch(menuChoice){
                 case 0:
                     startSp[1].paint(g);
@@ -220,6 +229,7 @@ public class SplashMenu
                     paint();
                     Thread.sleep(40);
                 } catch (InterruptedException e) {}
+                  catch ( MediaException me) {}
 
                 flushGraphics();
             }
