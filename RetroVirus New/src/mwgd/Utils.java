@@ -69,15 +69,17 @@ public class Utils {
             catch (IOException ioe) { }
             catch (MediaException me) { }
     }
-    static public void playWav(String wavName, Class storedClass)    {
+    static public Player playWav(String wavName, Class storedClass)    {
+        Player p = null;
         try
           {	
             InputStream is = storedClass.getResourceAsStream("../sound/"+wavName);
-            Player p = Manager.createPlayer(is, "audio/X-wav");
-            p.start();
+            p = Manager.createPlayer(is, "audio/X-wav");
+            
           }
           catch (IOException ioe) { }
           catch (MediaException me) { }
+        return p;
     }
 
     /*
