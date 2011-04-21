@@ -19,22 +19,27 @@ public class MainCanvas
         private int horCenter = getWidth()/2;
         private int vertCenter = getHeight()/2;
 
+	//sprites
         private Sprite[]        aboutSp;
         private Sprite[]        exitSp;
         private Sprite[]        hiscoreSp;
         private Sprite[]        startSp;
         private Sprite          titleSp;
+	private Sprite		gameIntroOne;
+
+
+	//static images,
         private Image           titleImg;
         private Image           rvImg;
         private Image           vImg;
         private Image           bgImg;
         private Image           aboutBGImg;
 	private Graphics        g;
-        //  handy title positioner
+        
+	// title positions
         private int titlex = 200;
         private int titley = 100;
 
-        // rotator static member
         static private int rot =0;
         private int menuChoice = 0;
         private int keycounter = 0;
@@ -77,6 +82,7 @@ public class MainCanvas
             rvImg   =   Utils.loadImage("retroHD", IMAGE);
             vImg    =   Utils.loadImage("virusHD", IMAGE);
             titleImg =  Utils.loadImage("title", IMAGE);
+
             //  temporary sprite for the title
             titleSp = new Sprite(titleImg);
             titleSp.defineReferencePixel(titleSp.getWidth()/2, titleSp.getHeight()/2);
@@ -120,7 +126,9 @@ public class MainCanvas
             startSp[1].setPosition(horCenter - (10 + startSp[0].getWidth()/2), vertCenter-30);
             hiscoreSp[1].setPosition(horCenter - (10 + hiscoreSp[0].getWidth()/2), vertCenter+30);
             exitSp[1].setPosition(horCenter - (10 + exitSp[0].getWidth()/2), vertCenter +60);
-            
+
+	    gameIntroOne = new Sprite(Utils.loadImage("WARNING1", IMAGE));
+	    gameIntroOne.setPosition(0, getHeight());
         }
 
 
@@ -367,9 +375,21 @@ public class MainCanvas
 	switch(GAMESTATE){
 
 	    case INTRO:
+
+		g.setColor(0, 0, 0);
+		g.fillRect( 0, 0, getWidth(), getHeight());
+		gameIntroOne.paint(g);
+		
 		break;
 
 	    case PLAYING:
+		g.setColor(0, 0, 0);
+		g.fillRect( 0, 0, getWidth(), getHeight());
+		if(gameIntroOne.getY() < -640){
+		    gameIntroOne.paint(g);
+		}
+		
+
 		break;
 
 	    case OUTRO:
@@ -378,13 +398,29 @@ public class MainCanvas
 	}
     }
 
-    private void updateGame() {
+    private void updateGame() throws MediaException {
 	switch(GAMESTATE){
 
 	    case INTRO:
+		gameTune.start();
+		if(gameIntroOne.getY() < -640){
+		    GAMESTATE = PLAYING;
+		}else{
+		    if(gameIntroOne.getY() < -320){
+			gameIntroOne.move(0, -12);
+		    }else{
+			gameIntroOne.move(0, -2);
+		    }
+		}
+
 		break;
 
 	    case PLAYING:
+		if(gameIntroOne.getY() < -640){
+		    gameIntroOne.move(0, -3);
+		}
+		gameTune.start();
+		
 		break;
 
 	    case OUTRO:
