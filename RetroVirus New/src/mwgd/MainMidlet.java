@@ -16,8 +16,8 @@ public class MainMidlet extends MIDlet implements CommandListener {
 
 
     private Display display;
-    private SplashMenu splash;
-
+    private MainCanvas mainCanv;
+  
     public static final Command exitCommand = new Command("Exit",Command.EXIT,1);
 
     public void commandAction(Command c, Displayable d) {
@@ -30,6 +30,7 @@ public class MainMidlet extends MIDlet implements CommandListener {
     public Display getDisplay(){return display;}
 
     private void exitMIDlet() {
+	getDisplay().setCurrent(null);
         notifyDestroyed();
     }
 
@@ -39,16 +40,19 @@ public class MainMidlet extends MIDlet implements CommandListener {
         if(display==null){
             display = Display.getDisplay(this);
             try {
-                splash = new SplashMenu();
+                mainCanv = new MainCanvas(this);
+   
+
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
 
-            splash.addCommand(exitCommand);
-            splash.setCommandListener(this);
+            mainCanv.addCommand(exitCommand);
+            mainCanv.setCommandListener(this);
+            getDisplay().setCurrent(mainCanv);
+            mainCanv.startMe();
 
-            getDisplay().setCurrent(splash);
-            splash.startMe();
+
         }
     }
 

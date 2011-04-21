@@ -81,6 +81,18 @@ public class Utils {
           catch (MediaException me) { }
         return p;
     }
+    static public Player playMP3(String mp3Name, Class storedClass)    {
+        Player p = null;
+        try
+          {
+            InputStream is = storedClass.getResourceAsStream("../sound/"+mp3Name);
+            p = Manager.createPlayer(is, "audio/mpeg");
+
+          }
+          catch (IOException ioe) { }
+          catch (MediaException me) { }
+        return p;
+    }
 
     /*
      * this function taken from blog.rafols.org and rearanged
