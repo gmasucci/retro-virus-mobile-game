@@ -148,8 +148,6 @@ public class MainCanvas
                     Thread.sleep(40);
                 } catch (InterruptedException e)
 		    {System.out.println("Error: " + e.toString());}
-                  catch ( MediaException me) 
-		    {System.out.println("Error: " + me.toString());}
 
                 flushGraphics();
             }
