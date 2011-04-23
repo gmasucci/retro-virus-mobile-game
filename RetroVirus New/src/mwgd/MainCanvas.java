@@ -5,6 +5,7 @@ import javax.microedition.lcdui.*;
 import javax.microedition.lcdui.game.*;
 import javax.microedition.media.*;
 import javax.microedition.midlet.MIDletStateChangeException;
+import java.util.Random;
 
 public class MainCanvas
         extends GameCanvas
@@ -19,14 +20,25 @@ public class MainCanvas
         private int horCenter = getWidth()/2;
         private int vertCenter = getHeight()/2;
 
-	//sprites
+	//  All sprites
+        //  button sprites
         private Sprite[]        aboutSp;
         private Sprite[]        exitSp;
         private Sprite[]        hiscoreSp;
         private Sprite[]        startSp;
+        //  whole-screen sprites
         private Sprite          titleSp;
 	private Sprite		gameIntroOne;
+        private Background      background;
+        //  and handy ways to access them
+        //  remeber to set these up right
+        //  or the background parallax will be off
+        private Sprite[]        bkground;
 
+        //  enemies
+	private Sprite[]	enemy;
+	private Virus		virusSprites;
+        //  end of all sprites
 
 	//static images,
         private Image           titleImg;
@@ -42,7 +54,7 @@ public class MainCanvas
 
         static private int rot =0;
         private int menuChoice = 0;
-        private int keycounter = 0;
+        private static int keycounter = 0;
 
 	// Application state
 	private int MODE;
@@ -77,58 +89,43 @@ public class MainCanvas
             vertCenter = getHeight()/2;
 
             //  load some images
-            bgImg   =   Utils.loadImage("BG", BACKGROUND);
-            aboutBGImg = Utils.loadImage("aboutBG", BACKGROUND);
-            rvImg   =   Utils.loadImage("retroHD", IMAGE);
-            vImg    =   Utils.loadImage("virusHD", IMAGE);
-            titleImg =  Utils.loadImage("title", IMAGE);
-
+            loadImages();
+            
             //  temporary sprite for the title
             titleSp = new Sprite(titleImg);
             titleSp.defineReferencePixel(titleSp.getWidth()/2, titleSp.getHeight()/2);
-            
 
-            //  About button
-            aboutSp = new Sprite[2];
-            aboutSp[0] = new Sprite(Utils.loadImage("aboutoff",BUTTON));
-            aboutSp[1] = new Sprite(Utils.loadImage("abouton",BUTTON));
-            
-            //  Exit button
-            exitSp  = new Sprite[2];
-            exitSp[0] = new Sprite(Utils.loadImage("exitoff",BUTTON));
-            exitSp[1] = new Sprite(Utils.loadImage("exiton",BUTTON));
-            
-            //  start button
-            startSp = new Sprite[2];
-            startSp[0] = new Sprite(Utils.loadImage("startoff",BUTTON));
-            startSp[1] = new Sprite(Utils.loadImage("starton",BUTTON));
-            
-            //  hiscore button
-            hiscoreSp = new Sprite[2];
-            hiscoreSp[0] = new Sprite(Utils.loadImage("hisoff",BUTTON));
-            hiscoreSp[1] = new Sprite(Utils.loadImage("hison",BUTTON));
+            //  load and set the menu buttons
+            initButtons();
 
-            //  sound
-            menuTune = Utils.playWav("tune.wav", storedClass);
-            menuEffect = Utils.playWav("starteffect.wav", storedClass);
-	    gameTune = Utils.playWav("gameTune.wav", storedClass);
-	    
+            // prepare the sounds for later
+            prepSounds();
+            //  init the background array
+            //  and background sprites
+            initBackgrounds();
 
             // set sprite positions
-
-            // off sprites
-            aboutSp[0].setPosition(horCenter - (10 + aboutSp[0].getWidth()/2), vertCenter);
-            startSp[0].setPosition(horCenter - (10 + startSp[0].getWidth()/2), vertCenter-30);
-            hiscoreSp[0].setPosition(horCenter - (10 + hiscoreSp[0].getWidth()/2), vertCenter+30);
-            exitSp[0].setPosition(horCenter - (10 + exitSp[0].getWidth()/2), vertCenter +60);
-            // on sprites
-            aboutSp[1].setPosition(horCenter - (10 + aboutSp[0].getWidth()/2), vertCenter);
-            startSp[1].setPosition(horCenter - (10 + startSp[0].getWidth()/2), vertCenter-30);
-            hiscoreSp[1].setPosition(horCenter - (10 + hiscoreSp[0].getWidth()/2), vertCenter+30);
-            exitSp[1].setPosition(horCenter - (10 + exitSp[0].getWidth()/2), vertCenter +60);
-
 	    gameIntroOne = new Sprite(Utils.loadImage("WARNING1", IMAGE));
 	    gameIntroOne.setPosition(0, getHeight());
+	    virusSprites = new Virus();
+	    enemy = new Sprite[10];
+	    for(int i=0;i<10;i++){
+		int k;
+		Random j = new Random();
+		j.setSeed(System.currentTimeMillis());
+		k = j.nextInt(3);
+		switch(k){
+		    case 0:
+			enemy[i] = virusSprites.getVirusSp();
+			break;
+		    case 1:
+			enemy[i] = virusSprites.getTrojanSp();
+			break;
+		    case 2:
+			enemy[i] = virusSprites.getWormSp();
+			break;
+		}
+	    }
         }
 
 
@@ -143,26 +140,22 @@ public class MainCanvas
         }
 
         private void processKeys() throws MediaException{
-
-		switch(MODE){
-		    case MENU:
-			menuKeys();
-			break;
-		    case ABOUT:
-			aboutKeys();
-			break;
-		    case GAME:
-			gameKeys();
-			break;
-		    default:
-			break;
-
-		}
-
+            switch(MODE){
+                case MENU:
+                    menuKeys();
+                    break;
+                case ABOUT:
+                    aboutKeys();
+                    break;
+                case GAME:
+                    gameKeys();
+                    break;
+                default:
+                    break;
+            }
         }
 
-        public void updateMe() throws MediaException{
-
+        public void updateMe(){
 	    switch(MODE){
 		case MENU:
 		    updateMenu();
@@ -174,12 +167,9 @@ public class MainCanvas
 		    updateGame();
 		    break;
 	    }
-
-
         }
 
-	public void paint(){
-
+	public void paint() {
 	    switch(MODE){
 		case MENU:
 		    paintMenu();
@@ -191,14 +181,12 @@ public class MainCanvas
 		    paintGame();
 		    break;
 	    }
-
 	}
-	private void paintAbout() {
 
+        private void paintAbout() {
 	    g.setColor(0, 255, 0);
             g.fillRect( 0, 0, getWidth(), getHeight());
 	    g.drawImage(aboutBGImg, 0, 0, Graphics.LEFT | Graphics.TOP);
-
 	}
 
         private void paintMenu(){
@@ -206,50 +194,18 @@ public class MainCanvas
             g.fillRect( 0, 0, getWidth(), getHeight());
             g.drawImage(bgImg, 0, 0, Graphics.LEFT | Graphics.TOP);
             //  title animation for the startscreen
-            if (titley >3)
-            {
-                titley--;
-            }
-            if (titlex > (horCenter-(titleImg.getWidth()/2)))
-            {
-                titlex--;
-            }
+            if (titley >3)  titley--;
+            if (titlex > (horCenter-(titleImg.getWidth()/2)))   titlex--;
             
             //draw decorations
             titleSp.paint(g);
             g.drawImage(vImg, 0, 0, Graphics.LEFT | Graphics.TOP);
             g.drawImage(rvImg, (horCenter*2) - rvImg.getWidth() , vertCenter+100, Graphics.LEFT | Graphics.TOP);
-            //draw buttons
-
-            switch(menuChoice){
-                case 0:
-                    startSp[1].paint(g);
-                    aboutSp[0].paint(g);
-                    hiscoreSp[0].paint(g);
-                    exitSp[0].paint(g);
-                    break;
-                case 1:
-                    startSp[0].paint(g);
-                    aboutSp[1].paint(g);
-                    hiscoreSp[0].paint(g);
-                    exitSp[0].paint(g);
-                    break;
-                case 2:
-                    startSp[0].paint(g);
-                    aboutSp[0].paint(g);
-                    hiscoreSp[1].paint(g);
-                    exitSp[0].paint(g);
-                    break;
-                case 3:
-                    startSp[0].paint(g);
-                    aboutSp[0].paint(g);
-                    hiscoreSp[0].paint(g);
-                    exitSp[1].paint(g);
-                    break;
-            }
+            //  draw our menu buttons
+            drawMenuButtons(/*menuChoice, g*/);
         }
 
-	private void updateMenu() throws MediaException {
+	private void updateMenu(){
 	    if (titleSp!=null && titlex > (horCenter-(titleImg.getWidth()/2)))
                 titlex-=2;
             if (titleSp!=null && titley>3 ){
@@ -272,12 +228,16 @@ public class MainCanvas
                 }
             }
             else{
+            try {
                 menuTune.start();
+            } catch (MediaException ex) {
+                ex.printStackTrace();
+            }
                 titleSp.setTransform(Sprite.TRANS_NONE);
             }
 	}
-	public void run(){
 
+        public void run(){
             while(true){
                 g = getGraphics();
                 try {
@@ -292,41 +252,39 @@ public class MainCanvas
 
                 flushGraphics();
             }
-
 	}
 
     private void updateAbout() {
-	
+	// do nothing, this is not the update you are looking for
     }
 
     private void menuKeys() throws MediaException {
 	if (keycounter>5){
 	    if((this.getKeyStates() & FIRE_PRESSED)!=0){
-                    switch(menuChoice){
-                        case 0:
-                            MODE = GAME;
-			    menuTune.stop();
-			    keycounter = 0;
-                            break;
-                        case 1:
-                            MODE = ABOUT;
-			    menuTune.stop();
-			    keycounter = 0;
-                            break;
-                        case 2:
-                            //hiscores
-                            break;
-                        case 3:
-                            try {
-				this.parent.destroyApp(true);
-			    } catch (MIDletStateChangeException ex) {
-				System.out.println("Error: " + ex.toString());
-			    }
-
-                            break;
-                        default:
-                            break;
-                    }
+                switch(menuChoice){
+                    case 0:
+                        MODE = GAME;
+                        menuTune.stop();
+                        keycounter = 0;
+                        break;
+                    case 1:
+                        MODE = ABOUT;
+                        menuTune.stop();
+                        keycounter = 0;
+                        break;
+                    case 2:
+                        //hiscores
+                        break;
+                    case 3:
+                        try {
+                            this.parent.destroyApp(true);
+                        } catch (MIDletStateChangeException ex) {
+                            System.out.println("Error: " + ex.toString());
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
 
 	    if ((this.getKeyStates() & UP_PRESSED) !=0 ){
@@ -340,8 +298,8 @@ public class MainCanvas
 
 	}
             keycounter++;
-            if (menuChoice <0) menuChoice =3;
-	    if (menuChoice >3) menuChoice =0;
+            menuChoice=cycleRound(menuChoice, 3);
+            
     }
 
     private void aboutKeys() {
@@ -369,6 +327,14 @@ public class MainCanvas
 		//gameAction fire bullet;
 	    }
 	}
+        else if(GAMESTATE == INTRO){
+            if ((this.getKeyStates()& FIRE_PRESSED) !=0)
+                if (gameIntroOne.isVisible())
+                {
+                    gameIntroOne.setVisible(false);
+                    GAMESTATE = PLAYING;
+                }
+        }
     }
 
     private void paintGame() {
@@ -385,10 +351,24 @@ public class MainCanvas
 	    case PLAYING:
 		g.setColor(0, 0, 0);
 		g.fillRect( 0, 0, getWidth(), getHeight());
-		if(gameIntroOne.getY() < -640){
-		    gameIntroOne.paint(g);
-		}
-		
+//		if(gameIntroOne.getY() < -640){
+//		    gameIntroOne.paint(g);
+//		}
+                //  do backgrounds before all else,
+                //  in order of bottom, middle, top
+//                bkground[0].paint(g);
+
+//		for (int i=0;i<10; i++){
+//		    enemy[i].paint(g);
+//                    enemy[i].nextFrame();
+//		}
+
+//		enemy[0].paint(g);
+//		enemy[1].paint(g);
+//		enemy[2].paint(g);
+//		enemy[3].paint(g);
+
+
 
 		break;
 
@@ -398,29 +378,52 @@ public class MainCanvas
 	}
     }
 
-    private void updateGame() throws MediaException {
+    private void updateGame(){
 	switch(GAMESTATE){
 
 	    case INTRO:
-		gameTune.start();
+        try {
+            gameTune.start();
+        } catch (MediaException ex) {
+            ex.printStackTrace();
+        }
 		if(gameIntroOne.getY() < -640){
 		    GAMESTATE = PLAYING;
+
+		    //generate starting enemy positions
+
+		    for(int i=0;i<10;i++){
+			Random j = new Random();
+			j.setSeed(System.currentTimeMillis());
+			int k = j.nextInt(getWidth()-enemy[i].getWidth());
+			enemy[i].setPosition(i,i);
+		    }
+
 		}else{
 		    if(gameIntroOne.getY() < -320){
 			gameIntroOne.move(0, -12);
 		    }else{
-			gameIntroOne.move(0, -2);
+			gameIntroOne.move(0, -4);
 		    }
 		}
-
 		break;
 
 	    case PLAYING:
-		if(gameIntroOne.getY() < -640){
-		    gameIntroOne.move(0, -3);
+                gameIntroOne.setVisible(false);
+//		if(gameIntroOne.getY() < -640){
+//		    gameIntroOne.move(0, -3);
+//		}
+//                while(bkground[0].getY() < -640)
+//                    bkground[0].move(0,1);
+        try {
+            gameTune.start();
+        } catch (MediaException ex) {
+            ex.printStackTrace();
+        }
+
+		for(int i=0;i<10;i++){
+		    enemy[i].move(0, 1);
 		}
-		gameTune.start();
-		
 		break;
 
 	    case OUTRO:
@@ -429,9 +432,104 @@ public class MainCanvas
 	}
     }
 
+    private void initButtons(){
+        //  About button
+        aboutSp = new Sprite[2];
+        aboutSp[0] = new Sprite(Utils.loadImage("aboutoff",BUTTON));
+        aboutSp[1] = new Sprite(Utils.loadImage("abouton",BUTTON));
 
+        //  Exit button
+        exitSp  = new Sprite[2];
+        exitSp[0] = new Sprite(Utils.loadImage("exitoff",BUTTON));
+        exitSp[1] = new Sprite(Utils.loadImage("exiton",BUTTON));
 
+        //  start button
+        startSp = new Sprite[2];
+        startSp[0] = new Sprite(Utils.loadImage("startoff",BUTTON));
+        startSp[1] = new Sprite(Utils.loadImage("starton",BUTTON));
 
+        //  hiscore button
+        hiscoreSp = new Sprite[2];
+        hiscoreSp[0] = new Sprite(Utils.loadImage("hisoff",BUTTON));
+        hiscoreSp[1] = new Sprite(Utils.loadImage("hison",BUTTON));
 
+        //  set the button positions
+        // off sprites
+        aboutSp[0].setPosition(horCenter - (10 + aboutSp[0].getWidth()/2), vertCenter);
+        startSp[0].setPosition(horCenter - (10 + startSp[0].getWidth()/2), vertCenter-30);
+        hiscoreSp[0].setPosition(horCenter - (10 + hiscoreSp[0].getWidth()/2), vertCenter+30);
+        exitSp[0].setPosition(horCenter - (10 + exitSp[0].getWidth()/2), vertCenter +60);
+        // on sprites
+        aboutSp[1].setPosition(horCenter - (10 + aboutSp[0].getWidth()/2), vertCenter);
+        startSp[1].setPosition(horCenter - (10 + startSp[0].getWidth()/2), vertCenter-30);
+        hiscoreSp[1].setPosition(horCenter - (10 + hiscoreSp[0].getWidth()/2), vertCenter+30);
+        exitSp[1].setPosition(horCenter - (10 + exitSp[0].getWidth()/2), vertCenter +60);
+    }
+
+    private void loadImages(){
+        bgImg   =   Utils.loadImage("BG", BACKGROUND);
+        aboutBGImg = Utils.loadImage("aboutBG", BACKGROUND);
+        rvImg   =   Utils.loadImage("retroHD", IMAGE);
+        vImg    =   Utils.loadImage("virusHD", IMAGE);
+        titleImg =  Utils.loadImage("title", IMAGE);
+    }
+
+    private void prepSounds(){
+        menuTune = Utils.playWav("tune.wav", storedClass);
+        menuEffect = Utils.playWav("starteffect.wav", storedClass);
+        gameTune = Utils.playWav("gameTune.wav", storedClass);
+    }
+
+    private void drawMenuButtons(/*int menuChoice, Graphics g*/){
+        switch(menuChoice){
+            case 0:
+                startSp[1].paint(g);
+                aboutSp[0].paint(g);
+                hiscoreSp[0].paint(g);
+                exitSp[0].paint(g);
+                break;
+            case 1:
+                startSp[0].paint(g);
+                aboutSp[1].paint(g);
+                hiscoreSp[0].paint(g);
+                exitSp[0].paint(g);
+                break;
+            case 2:
+                startSp[0].paint(g);
+                aboutSp[0].paint(g);
+                hiscoreSp[1].paint(g);
+                exitSp[0].paint(g);
+                break;
+            case 3:
+                startSp[0].paint(g);
+                aboutSp[0].paint(g);
+                hiscoreSp[0].paint(g);
+                exitSp[1].paint(g);
+                break;
+            }
+    }
+
+    private void initBackgrounds(){
+        bkground = new Sprite[3];
+//        try {
+//            //  set up backgrounds
+//
+//            bkground[0] = background.getBkgBottom();
+//            bkground[1] = background.getBkgMiddle();
+//            bkground[2] = background.getBkgTop();
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//        }
+
+    }
+
+    //  function for looping round a set of ints,
+    //  handy for say menus, arrays etc:)
+    private int cycleRound(int intName, int maxExtent)
+    {
+        if (intName <0) intName =maxExtent;
+	if (intName >maxExtent) intName =0;
+        return intName;
+    }
 
 }
