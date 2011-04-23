@@ -128,7 +128,7 @@ public class MainCanvas
 	    }
         }
 
-
+    //  Start and Run Methods
         public void startMe(){
             Thread th = new Thread(this);
             th.start();
@@ -138,105 +138,6 @@ public class MainCanvas
                 System.out.println("Error: " + ex.toString());
             }
         }
-
-        private void processKeys() throws MediaException{
-            switch(MODE){
-                case MENU:
-                    menuKeys();
-                    break;
-                case ABOUT:
-                    aboutKeys();
-                    break;
-                case GAME:
-                    gameKeys();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public void updateMe(){
-	    switch(MODE){
-		case MENU:
-		    updateMenu();
-		    break;
-		case ABOUT:
-		    updateAbout();
-		    break;
-		case GAME:
-		    updateGame();
-		    break;
-	    }
-        }
-
-	public void paint() {
-	    switch(MODE){
-		case MENU:
-		    paintMenu();
-		    break;
-		case ABOUT:
-		    paintAbout();
-		    break;
-		case GAME:
-		    paintGame();
-		    break;
-	    }
-	}
-
-        private void paintAbout() {
-	    g.setColor(0, 255, 0);
-            g.fillRect( 0, 0, getWidth(), getHeight());
-	    g.drawImage(aboutBGImg, 0, 0, Graphics.LEFT | Graphics.TOP);
-	}
-
-        private void paintMenu(){
-            g.setColor(0, 255, 0);
-            g.fillRect( 0, 0, getWidth(), getHeight());
-            g.drawImage(bgImg, 0, 0, Graphics.LEFT | Graphics.TOP);
-            //  title animation for the startscreen
-            if (titley >3)  titley--;
-            if (titlex > (horCenter-(titleImg.getWidth()/2)))   titlex--;
-            
-            //draw decorations
-            titleSp.paint(g);
-            g.drawImage(vImg, 0, 0, Graphics.LEFT | Graphics.TOP);
-            g.drawImage(rvImg, (horCenter*2) - rvImg.getWidth() , vertCenter+100, Graphics.LEFT | Graphics.TOP);
-            //  draw our menu buttons
-            drawMenuButtons(/*menuChoice, g*/);
-        }
-
-	private void updateMenu(){
-	    if (titleSp!=null && titlex > (horCenter-(titleImg.getWidth()/2)))
-                titlex-=2;
-            if (titleSp!=null && titley>3 ){
-                titleSp.setPosition(titlex, titley-=2);
-                titleSp.setTransform(rot);
-                // 0 5 3 6  rotation constants for 0,90,180 and 270 degrees
-                switch (rot){
-                    case 0:
-                        rot = 5;
-                        break;
-                    case 5:
-                        rot = 3;
-                        break;
-                    case 3:
-                        rot = 6;
-                        break;
-                    case 6:
-                        rot = 0;
-                        break;
-                }
-            }
-            else{
-            try {
-                menuTune.start();
-            } catch (MediaException ex) {
-                ex.printStackTrace();
-            }
-                titleSp.setTransform(Sprite.TRANS_NONE);
-            }
-	}
-
         public void run(){
             while(true){
                 g = getGraphics();
@@ -254,22 +155,42 @@ public class MainCanvas
             }
 	}
 
-    private void updateAbout() {
-	// do nothing, this is not the update you are looking for
-    }
-
-    private void menuKeys() throws MediaException {
+    //  Key Methods
+        private void processKeys(){
+            switch(MODE){
+                case MENU:
+                    menuKeys();
+                    break;
+                case ABOUT:
+                    aboutKeys();
+                    break;
+                case GAME:
+                    gameKeys();
+                    break;
+                default:
+                    break;
+            }
+        }
+        private void menuKeys() {
 	if (keycounter>5){
 	    if((this.getKeyStates() & FIRE_PRESSED)!=0){
                 switch(menuChoice){
                     case 0:
                         MODE = GAME;
-                        menuTune.stop();
+                try {
+                    menuTune.stop();
+                } catch (MediaException ex) {
+                    ex.printStackTrace();
+                }
                         keycounter = 0;
                         break;
                     case 1:
                         MODE = ABOUT;
-                        menuTune.stop();
+                try {
+                    menuTune.stop();
+                } catch (MediaException ex) {
+                    ex.printStackTrace();
+                }
                         keycounter = 0;
                         break;
                     case 2:
@@ -299,10 +220,9 @@ public class MainCanvas
 	}
             keycounter++;
             menuChoice=cycleRound(menuChoice, 3);
-            
-    }
 
-    private void aboutKeys() {
+    }
+        private void aboutKeys() {
 	if (keycounter>5){
 	    if((this.getKeyStates() & FIRE_PRESSED)!=0)
 	    {
@@ -312,8 +232,7 @@ public class MainCanvas
 	}
 	keycounter++;
     }
-
-    private void gameKeys() {
+        private void gameKeys() {
 
 	if(GAMESTATE == PLAYING){
 
@@ -337,7 +256,21 @@ public class MainCanvas
         }
     }
 
-    private void paintGame() {
+    //  Paint Methods
+        public void paint() {
+	    switch(MODE){
+		case MENU:
+		    paintMenu();
+		    break;
+		case ABOUT:
+		    paintAbout();
+		    break;
+		case GAME:
+		    paintGame();
+		    break;
+	    }
+	}
+        private void paintGame() {
 	switch(GAMESTATE){
 
 	    case INTRO:
@@ -345,7 +278,7 @@ public class MainCanvas
 		g.setColor(0, 0, 0);
 		g.fillRect( 0, 0, getWidth(), getHeight());
 		gameIntroOne.paint(g);
-		
+
 		break;
 
 	    case PLAYING:
@@ -377,8 +310,76 @@ public class MainCanvas
 
 	}
     }
+        private void paintMenu(){
+            g.setColor(0, 255, 0);
+            g.fillRect( 0, 0, getWidth(), getHeight());
+            g.drawImage(bgImg, 0, 0, Graphics.LEFT | Graphics.TOP);
+            //  title animation for the startscreen
+            if (titley >3)  titley--;
+            if (titlex > (horCenter-(titleImg.getWidth()/2)))   titlex--;
 
-    private void updateGame(){
+            //draw decorations
+            titleSp.paint(g);
+            g.drawImage(vImg, 0, 0, Graphics.LEFT | Graphics.TOP);
+            g.drawImage(rvImg, (horCenter*2) - rvImg.getWidth() , vertCenter+100, Graphics.LEFT | Graphics.TOP);
+            //  draw our menu buttons
+            drawMenuButtons(/*menuChoice, g*/);
+        }
+        private void paintAbout() {
+	    g.setColor(0, 255, 0);
+            g.fillRect( 0, 0, getWidth(), getHeight());
+	    g.drawImage(aboutBGImg, 0, 0, Graphics.LEFT | Graphics.TOP);
+	}
+
+    //  Update Methods
+        public  void updateMe(){
+	    switch(MODE){
+		case MENU:
+		    updateMenu();
+		    break;
+		case ABOUT:
+		    updateAbout();
+		    break;
+		case GAME:
+		    updateGame();
+		    break;
+	    }
+        }
+        private void updateMenu(){
+	    if (titleSp!=null && titlex > (horCenter-(titleImg.getWidth()/2)))
+                titlex-=2;
+            if (titleSp!=null && titley>3 ){
+                titleSp.setPosition(titlex, titley-=2);
+                titleSp.setTransform(rot);
+                // 0 5 3 6  rotation constants for 0,90,180 and 270 degrees
+                switch (rot){
+                    case 0:
+                        rot = 5;
+                        break;
+                    case 5:
+                        rot = 3;
+                        break;
+                    case 3:
+                        rot = 6;
+                        break;
+                    case 6:
+                        rot = 0;
+                        break;
+                }
+            }
+            else{
+            try {
+                menuTune.start();
+            } catch (MediaException ex) {
+                ex.printStackTrace();
+            }
+                titleSp.setTransform(Sprite.TRANS_NONE);
+            }
+	}
+        private void updateAbout() {
+	// do nothing, this is not the update you are looking for
+    }
+        private void updateGame(){
 	switch(GAMESTATE){
 
 	    case INTRO:
@@ -432,6 +433,9 @@ public class MainCanvas
 	}
     }
 
+    //  Startup Methods
+    //  these collate some startup routines to keep them manageable and tidy
+
     private void initButtons(){
         //  About button
         aboutSp = new Sprite[2];
@@ -465,7 +469,6 @@ public class MainCanvas
         hiscoreSp[1].setPosition(horCenter - (10 + hiscoreSp[0].getWidth()/2), vertCenter+30);
         exitSp[1].setPosition(horCenter - (10 + exitSp[0].getWidth()/2), vertCenter +60);
     }
-
     private void loadImages(){
         bgImg   =   Utils.loadImage("BG", BACKGROUND);
         aboutBGImg = Utils.loadImage("aboutBG", BACKGROUND);
@@ -473,13 +476,11 @@ public class MainCanvas
         vImg    =   Utils.loadImage("virusHD", IMAGE);
         titleImg =  Utils.loadImage("title", IMAGE);
     }
-
     private void prepSounds(){
         menuTune = Utils.playWav("tune.wav", storedClass);
         menuEffect = Utils.playWav("starteffect.wav", storedClass);
         gameTune = Utils.playWav("gameTune.wav", storedClass);
     }
-
     private void drawMenuButtons(/*int menuChoice, Graphics g*/){
         switch(menuChoice){
             case 0:
@@ -508,7 +509,6 @@ public class MainCanvas
                 break;
             }
     }
-
     private void initBackgrounds(){
         bkground = new Sprite[3];
 //        try {
