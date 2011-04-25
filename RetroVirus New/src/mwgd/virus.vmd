@@ -37,8 +37,8 @@
                 <Component componentID="6" typeID="Corg.netbeans.modules.vmd.game.model.Sequence">
                     <Property name="sequncecd.prop.imageresource" typeID="Corg.netbeans.modules.vmd.game.model.ImageResource" value="R4"/>
                     <Property name="sequncecd.prop.name" typeID="Pjava.lang.String" value="VtrojanSpseq001"/>
-                    <Property name="sequncecd.prop.framems" typeID="Pint" value="V200"/>
-                    <Property name="sequncecd.prop.frames" typeID="P#SequenceFrames" value="V4,0,1,2,3,"/>
+                    <Property name="sequncecd.prop.framems" typeID="Pint" value="V40"/>
+                    <Property name="sequncecd.prop.frames" typeID="P#SequenceFrames" value="V8,0,0,1,1,2,2,3,3,"/>
                     <Property name="sequncecd.prop.frame.width" typeID="Pint" value="V24"/>
                     <Property name="sequncecd.prop.frame.height" typeID="Pint" value="V24"/>
                     <Property name="sequncecd.prop.zero.based.index" typeID="Pboolean" value="Vtrue"/>
@@ -58,8 +58,8 @@
                 <Component componentID="9" typeID="Corg.netbeans.modules.vmd.game.model.Sequence">
                     <Property name="sequncecd.prop.imageresource" typeID="Corg.netbeans.modules.vmd.game.model.ImageResource" value="R7"/>
                     <Property name="sequncecd.prop.name" typeID="Pjava.lang.String" value="VwormSpseq001"/>
-                    <Property name="sequncecd.prop.framems" typeID="Pint" value="V200"/>
-                    <Property name="sequncecd.prop.frames" typeID="P#SequenceFrames" value="V4,0,1,2,3,"/>
+                    <Property name="sequncecd.prop.framems" typeID="Pint" value="V40"/>
+                    <Property name="sequncecd.prop.frames" typeID="P#SequenceFrames" value="V8,0,0,1,1,2,2,3,3,"/>
                     <Property name="sequncecd.prop.frame.width" typeID="Pint" value="V24"/>
                     <Property name="sequncecd.prop.frame.height" typeID="Pint" value="V24"/>
                     <Property name="sequncecd.prop.zero.based.index" typeID="Pboolean" value="Vtrue"/>

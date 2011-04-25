@@ -36,7 +36,7 @@ public class MainMidlet extends MIDlet implements CommandListener {
 
 
 
-    protected void startApp()  {
+    protected void startApp() throws MIDletStateChangeException {
         if(display==null){
             display = Display.getDisplay(this);
             try {
