@@ -22,12 +22,12 @@ public class Virus {
     public int[] virusSpseq001 = {0, 0, 1, 1, 2, 2, 3, 3};
     private Image enemyTrojan;
     private Sprite trojanSp;
-    public int trojanSpseq001Delay = 200;
-    public int[] trojanSpseq001 = {0, 1, 2, 3};
+    public int trojanSpseq001Delay = 40;
+    public int[] trojanSpseq001 = {0, 0, 1, 1, 2, 2, 3, 3};
     private Image enemyWorm;
     private Sprite wormSp;
-    public int wormSpseq001Delay = 200;
-    public int[] wormSpseq001 = {0, 1, 2, 3};
+    public int wormSpseq001Delay = 40;
+    public int[] wormSpseq001 = {0, 0, 1, 1, 2, 2, 3, 3};
     private Image BG;
     private Image explode;
     private Sprite explodeSp;
