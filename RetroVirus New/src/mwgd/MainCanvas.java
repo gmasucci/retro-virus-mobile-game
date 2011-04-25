@@ -82,10 +82,9 @@ public class MainCanvas
 	    storedClass = getClass();
             g = getGraphics();
 	    this.setFullScreenMode(true);
-            //TODO: Change this Back to MENU once finished coding GAME MODE
-	    MODE = GAME;
-	    //TODO: Change this back to INTRO when finished debugging GAMEMODE = PLAYING!
-	    GAMESTATE = PLAYING;
+            
+	    MODE = MENU;
+	    GAMESTATE = INTRO;
 
 	    //assign our MainMidlet pointer
 	    parent = m;
@@ -188,7 +187,7 @@ public class MainCanvas
             th.start();
             try {
                 menuEffect.start();
-		SLEEPTIME = 20;
+		SLEEPTIME = 40;
             } catch (MediaException ex) {
                 System.out.println("Error: " + ex.toString());
             }
@@ -361,7 +360,7 @@ public class MainCanvas
                             MODE = GAME;
 			    menuTune.stop();
 			    keycounter = 0;
-			    SLEEPTIME = 20;
+			    SLEEPTIME = 30;
 			    System.gc();
                             break;
                         case 1:
