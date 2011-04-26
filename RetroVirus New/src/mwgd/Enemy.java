@@ -144,4 +144,5 @@ public class Enemy {
 	mySprite.paint(g);
     }
 
+    public int getState(){return STATE;}
 }

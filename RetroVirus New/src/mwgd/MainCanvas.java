@@ -1,3 +1,7 @@
+//All Images & sound by Jonathan Grant/Neil Finlay/Giovanni Masucci
+//All sound created from samples from "http://www.freesound.org"
+//Main game tune made with SunVox "http://warmplace.ru/soft/sunvox/index.php"
+
 package mwgd;
 
 import java.io.*;
@@ -49,7 +53,7 @@ public class MainCanvas
 
     static private int rot =0;
     private int menuChoice = 0;
-    private int keycounter = 0;
+    private int keyRepeatCounter = 0;
 
     // Application state
     private int MODE;
@@ -66,10 +70,14 @@ public class MainCanvas
     private static final int NUMBADDIES = 12;
     private static final int MAXHEROBULLETS = 10;
 
+    private int score;
+
     //sound
     Player menuTune;
     Player menuEffect;
     Player gameTune;
+    Player shot;
+    Player explode;
     private Class storedClass;
     private Enemy enemy[];
     Thread th;
@@ -82,7 +90,7 @@ public class MainCanvas
 	    storedClass = getClass();
             g = getGraphics();
 	    this.setFullScreenMode(true);
-            
+            score = 0;
 	    MODE = MENU;
 	    GAMESTATE = INTRO;
 
@@ -129,6 +137,7 @@ public class MainCanvas
             menuTune = Utils.playWav("tune.wav", storedClass);
             menuEffect = Utils.playWav("starteffect.wav", storedClass);
 	    gameTune = Utils.playWav("gameTune.wav", storedClass);
+	    shot = Utils.playWav("shot.wav", storedClass);
 	    
 
             // set sprite positions
@@ -151,10 +160,11 @@ public class MainCanvas
 	    gameBG2Sp = new Sprite(Utils.loadImage("gameBG2", BACKGROUND));
 	    gameBG3Sp = new Sprite(Utils.loadImage("gameBG3", BACKGROUND));
 
+
+	    //hero stuff - for retro
 	    hBulletSp = new Sprite[MAXHEROBULLETS];
 	    heroFired = new boolean[MAXHEROBULLETS];
-
-
+	    shotTimer = 5; // 1 shot every 5 frames
 	    for (int i = 0; i < MAXHEROBULLETS; i++) {
 		hBulletSp[i] = new Sprite(Utils.loadImage("heroBullet", IMAGE));
 	    }
@@ -353,20 +363,21 @@ public class MainCanvas
     }
 
     private void menuKeys() throws MediaException {
-	if (keycounter>5){
+	if (keyRepeatCounter>5){
 	    if((this.getKeyStates() & FIRE_PRESSED)!=0){
                     switch(menuChoice){
                         case 0:
                             MODE = GAME;
 			    menuTune.stop();
-			    keycounter = 0;
+			    menuEffect.stop();
+			    keyRepeatCounter = 0;
 			    SLEEPTIME = 30;
 			    System.gc();
                             break;
                         case 1:
                             MODE = ABOUT;
-			    menuTune.stop();
-			    keycounter = 0;
+			    //menuTune.stop();
+			    keyRepeatCounter = 0;
 			    System.gc();
                             break;
                         case 2:
@@ -388,32 +399,37 @@ public class MainCanvas
 
 	    if ((this.getKeyStates() & UP_PRESSED) !=0 ){
 		menuChoice--;
-		keycounter = 0;
+		keyRepeatCounter = 0;
 	    }
             if ((this.getKeyStates() & DOWN_PRESSED )!=0 ){
 		menuChoice++;
-                keycounter = 0;
+                keyRepeatCounter = 0;
 	    }
 
 	}
-            keycounter++;
+            keyRepeatCounter++;
             if (menuChoice <0) menuChoice =3;
 	    if (menuChoice >3) menuChoice =0;
     }
 
     private void aboutKeys() {
-	if (keycounter>5){
+	if (keyRepeatCounter>5){
 	    if((this.getKeyStates() & FIRE_PRESSED)!=0)
 	    {
 		MODE = MENU;
-		keycounter=0;
+		keyRepeatCounter=0;
 	    }
 	}
-	keycounter++;
+	keyRepeatCounter++;
     }
 
     private void gameKeys() throws IOException {
 
+	if(GAMESTATE == INTRO){
+	    if((this.getKeyStates() & FIRE_PRESSED) !=0){
+		gameIntroOne.move(0, -10);
+	    }
+	}
 	
 	if(GAMESTATE == PLAYING){
 
@@ -425,23 +441,30 @@ public class MainCanvas
 	    }
 	    if((this.getKeyStates() & FIRE_PRESSED) !=0){
 
-		
-		    if(bulletcounter>MAXHEROBULLETS-1){
-			bulletcounter=0;
+		if(bulletcounter==MAXHEROBULLETS){
+		    bulletcounter=0;
+		}
+		if (keyRepeatCounter>shotTimer){
+
+		    if(!heroFired[bulletcounter]){
+			bulletcounter++;
+		    }else{
+			hBulletSp[bulletcounter].setPosition(heroSp.getX(), heroSp.getY());
+			heroFired[bulletcounter] = true;
+			keyRepeatCounter=0;
 		    }
-		    for(int i=0;i<MAXHEROBULLETS;i++){
-			if(!heroFired[i]){
+
+			    
+		}
 			
-			}
-		    }
-		    hBulletSp[bulletcounter].setPosition(heroSp.getX(), heroSp.getY());
-		    heroFired[bulletcounter] = true;
-		    bulletcounter++;
-		    shotTimer=0;
+		    
+		    
+	    }
+		keyRepeatCounter++;
     //		for(int i=0;i<NUMBADDIES;i++){
     //		    enemy[i].kill();
     //		}
-		}
+		
 		
 	    
 	}
@@ -526,7 +549,7 @@ public class MainCanvas
 		for (int i = 0; i < MAXHEROBULLETS; i++) {
 		    if(heroFired[i]){
 			for(int j =0;j<NUMBADDIES;j++){
-			    if(hBulletSp[i].collidesWith(enemy[j].getSprite(), false)){
+			    if(hBulletSp[i].collidesWith(enemy[j].getSprite(), false) && (enemy[j].getState() == 0)){
 				enemy[j].kill();
 				heroFired[i] = false;
 				hBulletSp[i].setPosition(-10, -10);
