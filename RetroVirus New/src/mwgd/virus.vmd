@@ -16,7 +16,7 @@
                 <Component componentID="3" typeID="Corg.netbeans.modules.vmd.game.model.Sequence">
                     <Property name="sequncecd.prop.imageresource" typeID="Corg.netbeans.modules.vmd.game.model.ImageResource" value="R1"/>
                     <Property name="sequncecd.prop.name" typeID="Pjava.lang.String" value="VvirusSpseq001"/>
-                    <Property name="sequncecd.prop.framems" typeID="Pint" value="V40"/>
+                    <Property name="sequncecd.prop.framems" typeID="Pint" value="V200"/>
                     <Property name="sequncecd.prop.frames" typeID="P#SequenceFrames" value="V8,0,0,1,1,2,2,3,3,"/>
                     <Property name="sequncecd.prop.frame.width" typeID="Pint" value="V24"/>
                     <Property name="sequncecd.prop.frame.height" typeID="Pint" value="V24"/>

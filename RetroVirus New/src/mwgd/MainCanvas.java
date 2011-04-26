@@ -38,6 +38,7 @@ public class MainCanvas
     private Sprite		heroSp;
     private Sprite		hBulletSp[];
     private Sprite		vBulletSp;
+        private static int pixelSubdivisions = 10;
 
     //static images,
     private Image           titleImg;
@@ -96,91 +97,25 @@ public class MainCanvas
 
 	    //assign our MainMidlet pointer
 	    parent = m;
-
 	    //  set the horizontal and vertical centers
+            //  for the screen, as we will want these later
             horCenter = getWidth()/2;
             vertCenter = getHeight()/2;
 
+            //some neatifying jiggery pokery here
             //  load some images
-            bgImg   =   Utils.loadImage("BG", BACKGROUND);
-            aboutBGImg = Utils.loadImage("aboutBG", BACKGROUND);
-            rvImg   =   Utils.loadImage("retroHD", IMAGE);
-            vImg    =   Utils.loadImage("virusHD", IMAGE);
-            titleImg =  Utils.loadImage("title", IMAGE);
-
+            loadImages();
             //  temporary sprite for the title
-            titleSp = new Sprite(titleImg);
-            titleSp.defineReferencePixel(titleSp.getWidth()/2, titleSp.getHeight()/2);
-            
-
-            //  About button
-            aboutSp = new Sprite[2];
-            aboutSp[0] = new Sprite(Utils.loadImage("aboutoff",BUTTON));
-            aboutSp[1] = new Sprite(Utils.loadImage("abouton",BUTTON));
-            
-            //  Exit button
-            exitSp  = new Sprite[2];
-            exitSp[0] = new Sprite(Utils.loadImage("exitoff",BUTTON));
-            exitSp[1] = new Sprite(Utils.loadImage("exiton",BUTTON));
-            
-            //  start button
-            startSp = new Sprite[2];
-            startSp[0] = new Sprite(Utils.loadImage("startoff",BUTTON));
-            startSp[1] = new Sprite(Utils.loadImage("starton",BUTTON));
-            
-            //  hiscore button
-            hiscoreSp = new Sprite[2];
-            hiscoreSp[0] = new Sprite(Utils.loadImage("hisoff",BUTTON));
-            hiscoreSp[1] = new Sprite(Utils.loadImage("hison",BUTTON));
-
-            //  sound
-            menuTune = Utils.playWav("tune.wav", storedClass);
-            menuEffect = Utils.playWav("starteffect.wav", storedClass);
-	    gameTune = Utils.playWav("gameTune.wav", storedClass);
-	    shot = Utils.playWav("shot.wav", storedClass);
-	    
-
-            // set sprite positions
-
-            // off sprites
-            aboutSp[0].setPosition(horCenter - (10 + aboutSp[0].getWidth()/2), vertCenter);
-            startSp[0].setPosition(horCenter - (10 + startSp[0].getWidth()/2), vertCenter-30);
-            hiscoreSp[0].setPosition(horCenter - (10 + hiscoreSp[0].getWidth()/2), vertCenter+30);
-            exitSp[0].setPosition(horCenter - (10 + exitSp[0].getWidth()/2), vertCenter +60);
-            // on sprites
-            aboutSp[1].setPosition(horCenter - (10 + aboutSp[0].getWidth()/2), vertCenter);
-            startSp[1].setPosition(horCenter - (10 + startSp[0].getWidth()/2), vertCenter-30);
-            hiscoreSp[1].setPosition(horCenter - (10 + hiscoreSp[0].getWidth()/2), vertCenter+30);
-            exitSp[1].setPosition(horCenter - (10 + exitSp[0].getWidth()/2), vertCenter +60);
-
-	    gameIntroOne = new Sprite(Utils.loadImage("WARNING1", IMAGE));
-	    gameIntroOne.setPosition(0, getHeight());
-
-	    gameBG1Sp = new Sprite(Utils.loadImage("gameBG1", BACKGROUND));
-	    gameBG2Sp = new Sprite(Utils.loadImage("gameBG2", BACKGROUND));
-	    gameBG3Sp = new Sprite(Utils.loadImage("gameBG3", BACKGROUND));
-
-
-	    //hero stuff - for retro
-	    hBulletSp = new Sprite[MAXHEROBULLETS];
-	    heroFired = new boolean[MAXHEROBULLETS];
-	    shotTimer = 5; // 1 shot every 5 frames
-	    for (int i = 0; i < MAXHEROBULLETS; i++) {
-		hBulletSp[i] = new Sprite(Utils.loadImage("heroBullet", IMAGE));
-	    }
-	    vBulletSp = new Sprite(Utils.loadImage("enemyBullet", IMAGE));
-
-	    for (int i = 0; i < MAXHEROBULLETS; i++) {
-		hBulletSp[i].setPosition(-10, -10);
-	    }
-	    vBulletSp.setPosition(-10, -10);
-
-	    hs = new HeroSprite();
-	    heroSp = hs.getHeroSp();
-	    heroSp.setFrame(0);
-	    heroSp.setPosition(horCenter, getHeight()- heroSp.getHeight());
-	    createEnemies();
+            initTitleSprite();
+            //  load and init the buttons for the menu
+            loadButtonSprites();
+            setButtonSpritePositions();
+            //  sort the backgrounds out
+            loadAndInitBackgrounds();
+	    //  may just need a hero, lets set his stuff now
+            initHero();
         }
+        
 
 	private void createEnemies() throws IOException{
 	    enemy = new Enemy[NUMBADDIES];
@@ -573,9 +508,94 @@ public class MainCanvas
 	}
     }
 
+    //  loading and segregation methods
+    private void loadImages(){
+        //  load some images
+        bgImg   =   Utils.loadImage("BG", BACKGROUND);
+        aboutBGImg = Utils.loadImage("aboutBG", BACKGROUND);
+        rvImg   =   Utils.loadImage("retroHD", IMAGE);
+        vImg    =   Utils.loadImage("virusHD", IMAGE);
+        titleImg =  Utils.loadImage("title", IMAGE);
+    }
+    private void loadButtonSprites(){
+        //  About button
+        aboutSp = new Sprite[2];
+        aboutSp[0] = new Sprite(Utils.loadImage("aboutoff",BUTTON));
+        aboutSp[1] = new Sprite(Utils.loadImage("abouton",BUTTON));
 
+        //  Exit button
+        exitSp  = new Sprite[2];
+        exitSp[0] = new Sprite(Utils.loadImage("exitoff",BUTTON));
+        exitSp[1] = new Sprite(Utils.loadImage("exiton",BUTTON));
 
+        //  start button
+        startSp = new Sprite[2];
+        startSp[0] = new Sprite(Utils.loadImage("startoff",BUTTON));
+        startSp[1] = new Sprite(Utils.loadImage("starton",BUTTON));
 
+        //  hiscore button
+        hiscoreSp = new Sprite[2];
+        hiscoreSp[0] = new Sprite(Utils.loadImage("hisoff",BUTTON));
+        hiscoreSp[1] = new Sprite(Utils.loadImage("hison",BUTTON));
+        //  sound
+        menuTune = Utils.playWav("tune.wav", storedClass);
+        menuEffect = Utils.playWav("starteffect.wav", storedClass);
+        gameTune = Utils.playWav("gameTune.wav", storedClass);
+        shot = Utils.playWav("shot.wav", storedClass);
+    }
+    private void setButtonSpritePositions(){
+        // set sprite positions
+        // off sprites
+        aboutSp[0].setPosition(horCenter - (10 + aboutSp[0].getWidth()/2), vertCenter);
+        startSp[0].setPosition(horCenter - (10 + startSp[0].getWidth()/2), vertCenter-30);
+        hiscoreSp[0].setPosition(horCenter - (10 + hiscoreSp[0].getWidth()/2), vertCenter+30);
+        exitSp[0].setPosition(horCenter - (10 + exitSp[0].getWidth()/2), vertCenter +60);
+        // on sprites
+        aboutSp[1].setPosition(horCenter - (10 + aboutSp[0].getWidth()/2), vertCenter);
+        startSp[1].setPosition(horCenter - (10 + startSp[0].getWidth()/2), vertCenter-30);
+        hiscoreSp[1].setPosition(horCenter - (10 + hiscoreSp[0].getWidth()/2), vertCenter+30);
+        exitSp[1].setPosition(horCenter - (10 + exitSp[0].getWidth()/2), vertCenter +60);
+    }
+    private void loadAndInitBackgrounds(){
+        gameIntroOne = new Sprite(Utils.loadImage("WARNING1", IMAGE));
+        gameIntroOne.setPosition(0, getHeight());
 
+        gameBG1Sp = new Sprite(Utils.loadImage("gameBG1", BACKGROUND));
+        gameBG2Sp = new Sprite(Utils.loadImage("gameBG2", BACKGROUND));
+        gameBG3Sp = new Sprite(Utils.loadImage("gameBG3", BACKGROUND));
+    }
+    private void initHero(){
+        //hero stuff - for retro
+        hBulletSp = new Sprite[MAXHEROBULLETS];
+        heroFired = new boolean[MAXHEROBULLETS];
+        shotTimer = 5; // 1 shot every 5 frames
+        for (int i = 0; i < MAXHEROBULLETS; i++) {
+            hBulletSp[i] = new Sprite(Utils.loadImage("heroBullet", IMAGE));
+        }
+        vBulletSp = new Sprite(Utils.loadImage("enemyBullet", IMAGE));
+
+        for (int i = 0; i < MAXHEROBULLETS; i++) {
+            hBulletSp[i].setPosition(-10, -10);
+        }
+        vBulletSp.setPosition(-10, -10);
+
+        hs = new HeroSprite();
+        try {
+            heroSp = hs.getHeroSp();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        heroSp.setFrame(0);
+        heroSp.setPosition(horCenter, getHeight()- heroSp.getHeight());
+        try {
+            createEnemies();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    private void initTitleSprite(){
+        titleSp = new Sprite(titleImg);
+        titleSp.defineReferencePixel(titleSp.getWidth()/2, titleSp.getHeight()/2);
+    }
 
 }
