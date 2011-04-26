@@ -4,16 +4,19 @@ import java.io.IOException;
 import java.util.Random;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.game.*;
+import javax.microedition.media.MediaException;
+import javax.microedition.media.Player;
 
 public class Enemy {
 
+    private Class storedClass;
     private Sprite mySprite;
     private int myType,health,xDeath,yDeath,movecounter,k;
     private boolean doIShoot;
     private boolean haveIShotAlready;
     public Virus virusSprites;
     public ExplodeSprite exp;
-
+    public Player explode;
 
     private int STATE;
     private final static int ALIVE	= 0;
@@ -21,7 +24,9 @@ public class Enemy {
     private final static int DEAD	= 2;
     private final static int SHOOTING	= 3;
 
-    Enemy(int xpos) throws IOException{
+    Enemy(int xpos, Class canvas) throws IOException {
+	storedClass = canvas;
+	explode = Utils.loadWav("explode.wav", storedClass);
 	exp = new ExplodeSprite();
 	virusSprites = new Virus();
 	create(xpos);
@@ -37,7 +42,7 @@ public class Enemy {
 
     private void create(int xpos) throws IOException{
 	Random j = new Random();
-	j.setSeed(k+System.currentTimeMillis());
+	j.setSeed(xpos+System.currentTimeMillis());
 	k = j.nextInt(100);
 	if(k<50){
 
@@ -53,14 +58,18 @@ public class Enemy {
 		health = 1;
 		myType = 2;
 	}
-	j.setSeed(k+System.currentTimeMillis());
+	j.setSeed(xpos+System.currentTimeMillis());
 	k = j.nextInt(240-mySprite.getWidth());
 	mySprite.setPosition(k, -mySprite.getHeight());
 	STATE = ALIVE;
     }
-    public void kill() throws IOException{
+    public boolean kill() throws IOException, MediaException{
+	boolean dead;
 	if (health > 0){
 	    health--;
+	    
+	    dead = false;
+
 	}else{
 	    xDeath = mySprite.getX();
 	    yDeath = mySprite.getY();
@@ -69,11 +78,17 @@ public class Enemy {
 	    mySprite.setPosition(xDeath, yDeath);
 	    STATE = DYING;
 	    destroy(true);
+	    dead = true;
 	}
+	return dead;
     }
 
-    public void destroy(boolean explode) throws IOException{
-	if(explode){
+    public void destroy(boolean ex) throws IOException, MediaException{
+	if(ex){
+	    if(explode.getState() == Player.STARTED){
+		explode.stop();
+	    }
+	    explode.start();
 	    int j = mySprite.getFrame();
 	    if(j==7){
 		STATE = DEAD;
@@ -95,7 +110,7 @@ public class Enemy {
     public Sprite getSprite(){
 	return mySprite;
     }
-    public void update() throws IOException{
+    public void update() throws IOException, MediaException{
 
 	
 	switch(STATE){
@@ -124,9 +139,9 @@ public class Enemy {
 		
 		break;
 	    case DEAD:
-	    Random j = new Random();
-	    j.setSeed(k+System.currentTimeMillis());
-	    int k = j.nextInt(240 - mySprite.getWidth());
+		Random j = new Random();
+		j.setSeed(k+System.currentTimeMillis());
+		k = j.nextInt(240 - mySprite.getWidth());
 		create(k);
 		break;
 	    case SHOOTING:

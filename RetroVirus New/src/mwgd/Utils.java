@@ -14,7 +14,6 @@ import java.io.*;
 import javax.microedition.media.*;
 //  need this for loading gfx . . .
 import javax.microedition.lcdui.*;
-import javax.microedition.lcdui.game.*;
 
 public class Utils {
     //  image loading functions
@@ -51,47 +50,19 @@ public class Utils {
             return null;
         }
     }
-//    static public Image loadImage(String imgName)    {
-//        try {
-//            return Image.createImage("images/" + imgName);
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//            return null;
-//        }
-//    }
-    //  sound loading functions
-    static public void playWebWav(String webWavName)    {
-        try
-        {
-            Player p = Manager.createPlayer("http://www.dark-arts.co.cc/"+webWavName+".wav");
-            p.start();
-        }
-            catch (IOException ioe) { }
-            catch (MediaException me) { }
-    }
-    static public Player playWav(String wavName, Class storedClass)    {
-        Player p = null;
-        try
-          {	
-            InputStream is = storedClass.getResourceAsStream("../sound/"+wavName);
-            p = Manager.createPlayer(is, "audio/X-wav");
-            
-          }
-          catch (IOException ioe) { }
-          catch (MediaException me) { }
-        return p;
-    }
-    static public Player playMP3(String mp3Name, Class storedClass)    {
-        Player p = null;
-        try
-          {
-            InputStream is = storedClass.getResourceAsStream("../sound/"+mp3Name);
-            p = Manager.createPlayer(is, "audio/mpeg");
+    static public Player loadWav(String wavName, Class storedClass){
+	Player p = null;
+	try {
+	    
+	    InputStream is = storedClass.getResourceAsStream("../sound/" + wavName);
+	    p = Manager.createPlayer(is, "audio/X-wav");
 
-          }
-          catch (IOException ioe) { }
-          catch (MediaException me) { }
-        return p;
+	} catch (IOException ex) {
+	    ex.printStackTrace();
+	} catch (MediaException ex) {
+	    ex.printStackTrace();
+	}
+	return p;
     }
 
     /*
@@ -136,13 +107,4 @@ public class Utils {
         //  int x, int y, int width, int height, boolean processAlpha)
         gfx.drawRGB(destDataBuffer, 0, width, 0, 0, width, height, true);
         }
-    public static void rotateSprite(Sprite sprite, float angle, Graphics gfx)
-    {
-        /*
-         * code to be added soon
-         * */
-
-        //rotateImage((Image)sprite.), angle, gfx);  // does not work ahem
-
-    }
 }
