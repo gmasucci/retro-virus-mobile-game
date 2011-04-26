@@ -184,10 +184,12 @@ public class MainCanvas
 
 	private void createEnemies() throws IOException{
 	    enemy = new Enemy[NUMBADDIES];
+	    int k =0;
+	    Random j = new Random();
 	    for(int i=0;i<NUMBADDIES;i++){
-		Random j = new Random();
-		j.setSeed(i+System.currentTimeMillis());
-		int k = j.nextInt(216);
+
+		j.setSeed(k);
+		k = j.nextInt(216);
 		enemy[i] = new Enemy(k);
 		 
 	    }
@@ -446,7 +448,7 @@ public class MainCanvas
 		}
 		if (keyRepeatCounter>shotTimer){
 
-		    if(!heroFired[bulletcounter]){
+		    if(heroFired[bulletcounter]){
 			bulletcounter++;
 		    }else{
 			hBulletSp[bulletcounter].setPosition(heroSp.getX(), heroSp.getY());
