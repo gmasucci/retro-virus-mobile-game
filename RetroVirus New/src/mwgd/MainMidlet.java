@@ -45,7 +45,7 @@ public class MainMidlet extends MIDlet implements CommandListener {
 
             } catch (IOException ex) {
                 ex.printStackTrace();
-            }
+	    }
 
             mainCanv.addCommand(exitCommand);
             mainCanv.setCommandListener(this);
