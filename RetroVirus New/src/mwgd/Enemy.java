@@ -19,10 +19,12 @@ public class Enemy {
     public Player explode;
 
     private int STATE;
-    private final static int ALIVE	= 0;
-    private final static int DYING	= 1;
-    private final static int DEAD	= 2;
-    private final static int SHOOTING	= 3;
+    public final static int ALIVE	= 0;
+    public final static int DYING	= 1;
+    public final static int DEAD	= 2;
+    public final static int SHOOTING	= 3;
+
+    private static int speedVar = 0;
 
     Enemy(int xpos, Class canvas) throws IOException {
 	storedClass = canvas;
@@ -47,15 +49,15 @@ public class Enemy {
 	if(k<50){
 
 		mySprite = virusSprites.getVirusSp();
-		health = 0;
+		health = 1;
 		myType = 0;
 	}else if(k>=50 && k < 75){
 		mySprite = virusSprites.getTrojanSp();
-		health = 1;
+		health = 2;
 		myType = 1;
 	}else if(k>=75){
 		mySprite = virusSprites.getWormSp();
-		health = 1;
+		health = 2;
 		myType = 2;
 	}
 	j.setSeed(xpos+System.currentTimeMillis());
@@ -64,13 +66,14 @@ public class Enemy {
 	STATE = ALIVE;
     }
     public boolean kill() throws IOException, MediaException{
-	boolean dead;
-	if (health > 0){
+	boolean dead=false;
+	if (health > 0)
+        {
 	    health--;
-	    
-	    dead = false;
-
-	}else{
+	    //dead = false;
+        }
+        if (health==0)
+        {
 	    xDeath = mySprite.getX();
 	    yDeath = mySprite.getY();
 	    mySprite = exp.getExplodeSp();
@@ -78,8 +81,8 @@ public class Enemy {
 	    mySprite.setPosition(xDeath, yDeath);
 	    STATE = DYING;
 	    destroy(true);
-	    dead = true;
-	}
+            dead = true;
+        }
 	return dead;
     }
 
@@ -92,9 +95,11 @@ public class Enemy {
 	    int j = mySprite.getFrame();
 	    if(j==7){
 		STATE = DEAD;
+                Upgrade.incrementKills();
 	    }
 	}else{
 	    STATE = DEAD;
+            Upgrade.incrementKills();
 	}
 
 
@@ -120,16 +125,16 @@ public class Enemy {
 		}else{
 		    mySprite.nextFrame();
 		    if(myType == 0){
-			mySprite.move(0,1);
+			mySprite.move(0,1+speedVar);
 		    }else if (myType == 1){
 			if(movecounter>1){
-			    mySprite.move(0,1);
+			    mySprite.move(0,1+speedVar);
 			    movecounter=0;
 			}else{
 			    movecounter++;
 			}
 		    }else{
-			mySprite.move(0,1);
+			mySprite.move(0,1+speedVar);
 		    }
 		}
 		break;
@@ -160,4 +165,5 @@ public class Enemy {
     }
 
     public int getState(){return STATE;}
+    public static void setSpeedVar(int newSpeedVar) {   speedVar = newSpeedVar; }
 }
