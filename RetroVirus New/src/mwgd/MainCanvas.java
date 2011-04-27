@@ -103,7 +103,7 @@ public class MainCanvas
     //  main game reporting stuff
     private int score;
     private int lives;
-    private int kills;
+    private int kills=0;
 
     //  sounds
     Player menuTune;
@@ -253,6 +253,12 @@ public class MainCanvas
 		break;
 
 	    case PLAYING:
+                if (lives == 0)
+                {
+                    HEROSTATE=DEAD;
+
+                }
+
 		if(HEROSTATE != DEAD){
 		    gameTune.start();
                     upgrade.update();
@@ -285,13 +291,16 @@ public class MainCanvas
 		  
 		    for(int i=0;i<NUMBADDIES;i++){
 			if(heroSp.collidesWith(enemy[i].getSprite(), false) && enemy[i].getState() == 0){
-			    if(HEROSTATE == NOPOWER){
+			    if(upgrade.currentLevel == Upgrade.Stage1){
 				HEROSTATE = DEAD;
+                                Upgrade.killCount=0;
 				lives -=1;
-			    }else if(HEROSTATE == POWERONE){
-			       HEROSTATE = NOPOWER;
-			    }else if(HEROSTATE == POWERTWO){
-			       HEROSTATE = POWERONE;
+			    }else if(upgrade.currentLevel == Upgrade.Stage2){
+                                upgrade.downgrade();
+                                HEROSTATE = NOPOWER;
+			    }else if(upgrade.currentLevel == Upgrade.Stage3){
+                                upgrade.downgrade();
+                                HEROSTATE = POWERONE;
 			    }
 			}
 		    }
@@ -355,15 +364,12 @@ public class MainCanvas
 	switch(GAMESTATE){
 
 	    case INTRO:
-
 		g.setColor(0, 0, 0);
 		g.fillRect( 0, 0, getWidth(), getHeight());
 		gameIntroOne.paint(g);
-
 		break;
 
 	    case PLAYING:
-
 		    g.setColor(0, 50, 0);
 		    g.fillRect( 0, 0, getWidth(), getHeight());
 		    gameBG3Sp.paint(g);
@@ -410,138 +416,138 @@ public class MainCanvas
 	}
     }
 
-        //  key-input methods
-        public void     processKeys() throws MediaException, IOException{
+    //  key-input methods
+    public void     processKeys() throws MediaException, IOException{
 
-		switch(MODE){
-		    case MENU:
-			menuKeys();
-			break;
-		    case ABOUT:
-			aboutKeys();
-			break;
-		    case GAME:
-			gameKeys();
-			break;
-		    default:
-			break;
-
-		}
-
-        }
-        private void    aboutKeys() {
-	if (keyRepeatCounter>5){
-	    if((this.getKeyStates() & FIRE_PRESSED)!=0)
-	    {
-		MODE = MENU;
-		keyRepeatCounter=0;
-	    }
-	}
-	keyRepeatCounter++;
-    }
-        private void    menuKeys() throws MediaException {
-            if (keyRepeatCounter>5){
-                if((this.getKeyStates() & FIRE_PRESSED)!=0){
-                        switch(menuChoice){
-                            case 0:
-                                MODE = GAME;
-                                menuTune.stop();
-                                menuEffect.stop();
-                                keyRepeatCounter = 0;
-                                SLEEPTIME = 20;
-                                System.gc();
-                                break;
-                            case 1:
-                                MODE = ABOUT;
-                                //menuTune.stop();
-                                keyRepeatCounter = 0;
-                                System.gc();
-                                break;
-                            case 2:
-                                //hiscores
-                                break;
-                            case 3:
-                                System.gc();
-                                try {
-                                    this.parent.destroyApp(true);
-                                } catch (MIDletStateChangeException ex) {
-                                    System.out.println("Error: " + ex.toString());
-                                }
-
-                                break;
-                            default:
-                                break;
-                        }
-                }
-
-                if ((this.getKeyStates() & UP_PRESSED) !=0 ){
-                    menuChoice--;
-                    keyRepeatCounter = 0;
-                }
-                if ((this.getKeyStates() & DOWN_PRESSED )!=0 ){
-                    menuChoice++;
-                    keyRepeatCounter = 0;
-                }
+            switch(MODE){
+                case MENU:
+                    menuKeys();
+                    break;
+                case ABOUT:
+                    aboutKeys();
+                    break;
+                case GAME:
+                    gameKeys();
+                    break;
+                default:
+                    break;
 
             }
-                keyRepeatCounter++;
-                if (menuChoice <0) menuChoice =3;
-                if (menuChoice >3) menuChoice =0;
+
+    }
+    private void    aboutKeys() {
+    if (keyRepeatCounter>5){
+        if((this.getKeyStates() & FIRE_PRESSED)!=0)
+        {
+            MODE = MENU;
+            keyRepeatCounter=0;
         }
-        private void    gameKeys() throws IOException, MediaException {
+    }
+    keyRepeatCounter++;
+}
+    private void    menuKeys() throws MediaException {
+        if (keyRepeatCounter>5){
+            if((this.getKeyStates() & FIRE_PRESSED)!=0){
+                    switch(menuChoice){
+                        case 0:
+                            MODE = GAME;
+                            menuTune.stop();
+                            menuEffect.stop();
+                            keyRepeatCounter = 0;
+                            SLEEPTIME = 20;
+                            System.gc();
+                            break;
+                        case 1:
+                            MODE = ABOUT;
+                            //menuTune.stop();
+                            keyRepeatCounter = 0;
+                            System.gc();
+                            break;
+                        case 2:
+                            //hiscores
+                            break;
+                        case 3:
+                            System.gc();
+                            try {
+                                this.parent.destroyApp(true);
+                            } catch (MIDletStateChangeException ex) {
+                                System.out.println("Error: " + ex.toString());
+                            }
 
-	if(GAMESTATE == INTRO){
-	    if((this.getKeyStates() & FIRE_PRESSED) !=0)    {   gameIntroOne.move(0, -10);  }
-	}
-
-	if(GAMESTATE == PLAYING && HEROSTATE != DEAD){
-
-	if((this.getKeyStates() & LEFT_PRESSED) !=0){   heroSp.move(-3, 0); }
-	if((this.getKeyStates() & RIGHT_PRESSED) !=0){  heroSp.move(3, 0);  }
-        if (upgrade.currentLevel==Upgrade.Stage3)
-            {
-                if((this.getKeyStates() & UP_PRESSED) !=0){ heroSp.move(0,-2);  }
-                if((this.getKeyStates() & DOWN_PRESSED) !=0){heroSp.move(0, 4); }
+                            break;
+                        default:
+                            break;
+                    }
             }
 
-	    if((this.getKeyStates() & FIRE_PRESSED) !=0){
+            if ((this.getKeyStates() & UP_PRESSED) !=0 ){
+                menuChoice--;
+                keyRepeatCounter = 0;
+            }
+            if ((this.getKeyStates() & DOWN_PRESSED )!=0 ){
+                menuChoice++;
+                keyRepeatCounter = 0;
+            }
 
-		if(bulletcounter==MAXHEROBULLETS)   {   bulletcounter=0;    }
-		if (keyRepeatCounter>shotTimer){
-		    if(heroFired[bulletcounter]){   bulletcounter++;        }
-		    else
-                    {
-                        switch(upgrade.currentLevel){
-                            case Upgrade.Stage1:
-                                hBulletSp[bulletcounter].setPosition(heroSp.getX(), heroSp.getY());
-                                heroFired[bulletcounter] = true;
-                                break;
-                            case Upgrade.Stage2:
-                                hBulletSp[bulletcounter].setPosition(heroSp.getX()+16, heroSp.getY());
-                                hBullet2Sp[bulletcounter].setPosition(heroSp.getX(), heroSp.getY());
-                                heroFired[bulletcounter] = true;
-                                heroFired2[bulletcounter]= true;
-                                break;
-                            case Upgrade.Stage3:
-                                hBulletSp[bulletcounter].setPosition(heroSp.getX()+16, heroSp.getY());
-                                hBullet2Sp[bulletcounter].setPosition(heroSp.getX(), heroSp.getY());
-                                heroFired[bulletcounter] = true;
-                                heroFired2[bulletcounter]= true;
-                                break;
-                        }
-			if(shot.getState() == Player.STARTED){
-			    shot.stop();
-			}
-			shot.start();
-			keyRepeatCounter=0;
-		    }
-		}
-	    }
-	    keyRepeatCounter++;
-	}
+        }
+            keyRepeatCounter++;
+            if (menuChoice <0) menuChoice =3;
+            if (menuChoice >3) menuChoice =0;
+    }
+    private void    gameKeys() throws IOException, MediaException {
+
+    if(GAMESTATE == INTRO){
+        if((this.getKeyStates() & FIRE_PRESSED) !=0)    {   gameIntroOne.move(0, -10);  }
     }
 
-//  static accessors, for use in other classes
+    if(GAMESTATE == PLAYING && HEROSTATE != DEAD){
+
+    if((this.getKeyStates() & LEFT_PRESSED) !=0){   heroSp.move(-3, 0); }
+    if((this.getKeyStates() & RIGHT_PRESSED) !=0){  heroSp.move(3, 0);  }
+    if (upgrade.currentLevel==Upgrade.Stage3)
+        {
+            if((this.getKeyStates() & UP_PRESSED) !=0){ heroSp.move(0,-2);  }
+            if((this.getKeyStates() & DOWN_PRESSED) !=0){heroSp.move(0, 4); }
+        }
+
+        if((this.getKeyStates() & FIRE_PRESSED) !=0){
+
+            if(bulletcounter==MAXHEROBULLETS)   {   bulletcounter=0;    }
+            if (keyRepeatCounter>shotTimer){
+                if(heroFired[bulletcounter]){   bulletcounter++;        }
+                else
+                {
+                    switch(upgrade.currentLevel){
+                        case Upgrade.Stage1:
+                            hBulletSp[bulletcounter].setPosition(heroSp.getX(), heroSp.getY());
+                            heroFired[bulletcounter] = true;
+                            break;
+                        case Upgrade.Stage2:
+                            hBulletSp[bulletcounter].setPosition(heroSp.getX()+16, heroSp.getY());
+                            hBullet2Sp[bulletcounter].setPosition(heroSp.getX(), heroSp.getY());
+                            heroFired[bulletcounter] = true;
+                            heroFired2[bulletcounter]= true;
+                            break;
+                        case Upgrade.Stage3:
+                            hBulletSp[bulletcounter].setPosition(heroSp.getX()+16, heroSp.getY());
+                            hBullet2Sp[bulletcounter].setPosition(heroSp.getX(), heroSp.getY());
+                            heroFired[bulletcounter] = true;
+                            heroFired2[bulletcounter]= true;
+                            break;
+                    }
+                    if(shot.getState() == Player.STARTED){
+                        shot.stop();
+                    }
+                    shot.start();
+                    keyRepeatCounter=0;
+                }
+            }
+        }
+        keyRepeatCounter++;
+    }
+}
+
+    //  static accessors, for use in other classes
     public static void  decreaseShotTimer(int valueToDecreaseBy)     {   shotTimer -= valueToDecreaseBy;  }
     public static void  increaseShotTimer(int valueToIncreaseBy)     {   shotTimer += valueToIncreaseBy;  }
     public static void  decreaseMaxEnemies(int valueToDecreaseBy)    {   NUMBADDIES -=  valueToDecreaseBy;}

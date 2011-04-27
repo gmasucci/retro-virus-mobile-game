@@ -17,7 +17,9 @@ public class Upgrade {
     public static final int Stage3 = 2;
     public int currentLevel = Stage1;
     public static int killCount = 0;
-    public static final int upgradeReq = 20;
+    public static final int upgradeReq1 = 20;
+    public static final int upgradeReq2 = 60;
+    public static final int upgradeReq3 = 100;
     public Sprite shredder;
     public int seq[] = {0,1};
     public int seqDelay = 500;
@@ -58,9 +60,13 @@ public class Upgrade {
     public void downgrade(){
         switch(currentLevel){
             case Stage3:
+                MainCanvas.decreaseShotTimer(Stage2);
+                MainCanvas.setMaxEnemies(20);
                 currentLevel = Stage2;
                 break;
             case Stage2:
+                MainCanvas.decreaseShotTimer(Stage1);
+                MainCanvas.setMaxEnemies(12);
                 currentLevel = Stage1;
                 break;
             default:
@@ -71,16 +77,29 @@ public class Upgrade {
     public void update(){
         if (currentLevel==Stage3)
         {
-            thisTime=System.currentTimeMillis();
+           thisTime=System.currentTimeMillis();
            if (thisTime-lastTime >= seqDelay){
                shredder.nextFrame();
                lastTime=thisTime;
+           }
+           if (thisTime-lastTime >=5000) {
+               downgrade();
            }
 
         }
 
         switch(killCount){
-            case upgradeReq:
+            case upgradeReq1:
+                //killCount=0;
+                killCount++;
+                upgrade();
+                break;
+            case upgradeReq2:
+                //killCount=0;
+                killCount++;
+                upgrade();
+                break;
+            case upgradeReq3:
                 killCount=0;
                 upgrade();
                 break;
