@@ -25,6 +25,8 @@ public class Upgrade {
     public int seqDelay = 500;
     private long lastTime=0;
     private long thisTime=0;
+    private long shieldTime=10000;
+    private long shieldStart=0;
 
     private static int MAXLEVEL = 3;
     private static int MINLEVEL = 0;
@@ -82,7 +84,7 @@ public class Upgrade {
                shredder.nextFrame();
                lastTime=thisTime;
            }
-           if (thisTime-lastTime >=5000) {
+           if (thisTime-shieldStart >=shieldTime) {
                downgrade();
            }
 
@@ -100,6 +102,7 @@ public class Upgrade {
                 upgrade();
                 break;
             case upgradeReq3:
+                shieldStart = System.currentTimeMillis();
                 killCount=0;
                 upgrade();
                 break;
