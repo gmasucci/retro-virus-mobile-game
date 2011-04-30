@@ -13,7 +13,6 @@ public class Enemy {
     private Sprite mySprite;
     private int myType,health,xDeath,yDeath,movecounter,k;
     private boolean doIShoot;
-    private boolean haveIShotAlready;
     public Virus virusSprites;
     public ExplodeSprite exp;
     public Player explode;
