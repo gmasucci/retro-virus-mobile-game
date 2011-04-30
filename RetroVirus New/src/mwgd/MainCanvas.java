@@ -36,6 +36,8 @@ public class MainCanvas
     private Sprite		gameBG1Sp;
     private Sprite		gameBG2Sp;
     private Sprite		gameBG3Sp;
+    private Sprite		loseGame;
+    private Sprite		winGame;
     //  hero sprites
     private HeroSprite          hs;
     private Sprite		heroSp;
@@ -52,6 +54,7 @@ public class MainCanvas
     private Image           vImg;
     private Image           bgImg;
     private Image           aboutBGImg;
+    private Image	    hsBgImg;
     private Graphics        g;
 
     //  upgrade system
@@ -102,13 +105,15 @@ public class MainCanvas
     //  main game reporting stuff
     private int score;
     private int lives;
-    private int kills=0;
+    private int totalkills=0;
 
     //  sounds
     Player menuTune;
     Player menuEffect;
     Player gameTune;
     Player shot;
+    Player menumove;
+    Player menuselect;
 
     //hiscore stuff
     private HighScoreSystem hiscore;
@@ -120,6 +125,8 @@ public class MainCanvas
     private int bulletcounter;
     private static int shotTimer;
     private boolean WIN;
+    private boolean ul;//has uploaded score already
+    private boolean drawothers;
 
 
         public MainCanvas(final MainMidlet m) throws IOException{
@@ -220,8 +227,8 @@ public class MainCanvas
 
         }
 	private void updateHS() throws MediaException{
+	    gameTune.stop();
 	    menuTune.start();
-
 	}
 
         private void    updateAbout() throws MediaException {
@@ -250,6 +257,7 @@ public class MainCanvas
                 }
             }
             else{
+		drawothers=true;
                 menuTune.start();
                 titleSp.setTransform(Sprite.TRANS_NONE);
             }
@@ -273,11 +281,7 @@ public class MainCanvas
 		break;
 
 	    case PLAYING:
-                if (lives < 1)
-                {
-                    HEROSTATE=DEAD;
-		    GAMESTATE = OUTRO;
-                }
+          
 
 		if(HEROSTATE != DEAD){
 		    gameTune.start();
@@ -294,12 +298,14 @@ public class MainCanvas
 				if(hBulletSp[i].collidesWith(enemy[j].getSprite(), false) && (enemy[j].getState() == 0))
                                 {
                                     if(enemy[j].kill()) alterScore(j);
+					totalkills++;
                                         heroFired[i] = false;
                                         hBulletSp[i].setPosition(-10, -10);
 				}
                                 if(hBullet2Sp[i].collidesWith(enemy[j].getSprite(), false) && (enemy[j].getState() == 0))
                                 {
                                     if(enemy[j].kill()) alterScore(j);
+					totalkills++;
                                         heroFired2[i] = false;
                                         hBullet2Sp[i].setPosition(-10, -10);
 				}
@@ -327,6 +333,14 @@ public class MainCanvas
 		}
                 else
                 {
+		    if (lives < 1)
+		    {
+			GAMESTATE = OUTRO;
+			WIN=false;
+			gameTune.stop();
+			menuTune.setLoopCount(10);
+			menuTune.start();
+		    }
 		    explodeSp.setPosition(heroSp.getX(), heroSp.getY());
 		    explodeSp.nextFrame();
 		    if(explodeSp.getFrame() == 7)
@@ -344,13 +358,14 @@ public class MainCanvas
 	    case OUTRO:
 		//display score
 		if(WIN){
-		    //winner sprite.show
-		    //highscore
 		    score = (int) (score * 1.5);
 		}
 		if(!WIN){
 		}
+		if(!ul){
 		httpmessage = hiscore.upload(score);
+		}
+		ul = true;
 		break;
 
 	}
@@ -368,8 +383,15 @@ public class MainCanvas
 		case GAME:
 		    paintGame();
 		    break;
+		case HIGHSCORES:
+		    paintHS();
 	    }
 
+	}
+	private void paintHS(){
+	    g.drawImage(hsBgImg, 0, 0, Graphics.LEFT | Graphics.TOP);
+	    g.setColor(255,255,255);
+	    g.drawString(httpmessage, 30, 100, 0);
 	}
 	private void    paintAbout() {
 
@@ -384,12 +406,16 @@ public class MainCanvas
             //  title animation for the startscreen
             if (titley >3)  {   titley--;   }
             if (titlex > (horCenter-(titleImg.getWidth()/2)))   { titlex--;     }
-            //draw decorations
-            drawDecorations();
-            //draw buttons
-            drawButtons();
+            titleSp.paint(g);
+	    if(drawothers){
+		//draw decorations
+		drawDecorations();
+		//draw buttons
+		drawButtons();
+	    }
         }
         private void    paintGame() {
+	
 	switch(GAMESTATE){
 
 	    case INTRO:
@@ -441,12 +467,27 @@ public class MainCanvas
 
 	    case OUTRO:
 
-		g.setColor(0, 50, 0);
-		g.fillRect( 0, 0, getWidth(), getHeight());
-		g.setColor(255, 255, 255);
-		if(httpmessage!=null)
-		    g.drawString(httpmessage, 0, 0, 0);
 
+		if(WIN){
+		    winGame.paint(g);
+		}else{
+		    loseGame.paint(g);
+		}
+		g.setColor(0, 64, 0);
+		g.fillRoundRect(20, 160, getWidth()-40, 140, 10, 10);
+		g.setColor(255, 255, 255);
+		
+		if(httpmessage!=null){
+		    String a,b,c;
+		    if(httpmessage.length() < 23){
+			g.drawString(httpmessage, 25, 165, 0);
+		    }else if(httpmessage.length() >= 23 && httpmessage.length() < 44){
+			a = httpmessage.substring(0, 22);
+			b = httpmessage.substring(23);
+			g.drawString(a, 25, 165, 0);
+			g.drawString(b, 25, 185, 0);
+		    }
+		}
 		break;
 
 	}
@@ -473,7 +514,14 @@ public class MainCanvas
 
     }
     private void hsKeys(){
-
+    if (keyRepeatCounter>5){
+        if((this.getKeyStates() & FIRE_PRESSED)!=0)
+        {
+            MODE = MENU;
+            keyRepeatCounter=0;
+        }
+    }
+    keyRepeatCounter++;
     }
     private void    aboutKeys() {
     if (keyRepeatCounter>5){
@@ -485,54 +533,62 @@ public class MainCanvas
     }
     keyRepeatCounter++;
 }
-    private void    menuKeys() throws MediaException {
-        if (keyRepeatCounter>5){
-            if((this.getKeyStates() & FIRE_PRESSED)!=0){
-                    switch(menuChoice){
-                        case 0:
-                            MODE = GAME;
-                            menuTune.stop();
-                            menuEffect.stop();
-                            keyRepeatCounter = 0;
-                            SLEEPTIME = 20;
-                            System.gc();
-                            break;
-                        case 1:
-                            MODE = ABOUT;
-                            //menuTune.stop();
-                            keyRepeatCounter = 0;
-                            System.gc();
-                            break;
-                        case 2:
-                            //hiscores
-                            break;
-                        case 3:
-                            System.gc();
-                            try {
-                                this.parent.destroyApp(true);
-                            } catch (MIDletStateChangeException ex) {
-                                System.out.println("Error: " + ex.toString());
-                            }
+    private void    menuKeys() throws MediaException, IOException {
+	if(drawothers){
+	    if (keyRepeatCounter>5){
+		if((this.getKeyStates() & FIRE_PRESSED)!=0){
+		    menuselect.start();
+			switch(menuChoice){
+			    case 0:
+				MODE = GAME;
+				menuTune.stop();
+				menuEffect.stop();
+				keyRepeatCounter = 0;
+				SLEEPTIME = 20;
+				System.gc();
+				break;
+			    case 1:
+				MODE = ABOUT;
+				//menuTune.stop();
+				keyRepeatCounter = 0;
+				System.gc();
+				break;
+			    case 2:
+				MODE = HIGHSCORES;
+				httpmessage = hiscore.getScores();
+				keyRepeatCounter = 0;
+				System.gc();
+				break;
+			    case 3:
+				System.gc();
+				try {
+				    this.parent.destroyApp(true);
+				} catch (MIDletStateChangeException ex) {
+				    System.out.println("Error: " + ex.toString());
+				}
 
-                            break;
-                        default:
-                            break;
-                    }
-            }
+				break;
+			    default:
+				break;
+			}
+		}
 
-            if ((this.getKeyStates() & UP_PRESSED) !=0 ){
-                menuChoice--;
-                keyRepeatCounter = 0;
-            }
-            if ((this.getKeyStates() & DOWN_PRESSED )!=0 ){
-                menuChoice++;
-                keyRepeatCounter = 0;
-            }
+		if ((this.getKeyStates() & UP_PRESSED) !=0 ){
+		    menuChoice--;
+		    menumove.start();
+		    keyRepeatCounter = 0;
+		}
+		if ((this.getKeyStates() & DOWN_PRESSED )!=0 ){
+		    menuChoice++;
+		    menumove.start();
+		    keyRepeatCounter = 0;
+		}
 
-        }
-            keyRepeatCounter++;
-            if (menuChoice <0) menuChoice =3;
-            if (menuChoice >3) menuChoice =0;
+	    }
+		keyRepeatCounter++;
+		if (menuChoice <0) menuChoice =3;
+		if (menuChoice >3) menuChoice =0;
+    }
     }
     private void    gameKeys() throws IOException, MediaException {
 
@@ -603,12 +659,16 @@ public class MainCanvas
         rvImg   =   Utils.loadImage("retroHD", IMAGE);
         vImg    =   Utils.loadImage("virusHD", IMAGE);
         titleImg =  Utils.loadImage("title", IMAGE);
+	hsBgImg = Utils.loadImage("hsbg", BACKGROUND);
     }
     private void loadSounds(){
         menuTune = Utils.loadWav("tune.wav", storedClass);
         menuEffect = Utils.loadWav("starteffect.wav", storedClass);
         gameTune = Utils.loadWav("gameTune.wav", storedClass);
         shot = Utils.loadWav("shot.wav", storedClass);
+	menumove = Utils.loadWav("move.wav", storedClass);
+	menuselect = Utils.loadWav("select.wav", storedClass);
+	
     }
     private void loadButtonSprites(){
         //  About button
@@ -656,11 +716,14 @@ public class MainCanvas
         gameBG1Sp = new Sprite(Utils.loadImage("gameBG1", BACKGROUND));
         gameBG2Sp = new Sprite(Utils.loadImage("gameBG2", BACKGROUND));
         gameBG3Sp = new Sprite(Utils.loadImage("gameBG3", BACKGROUND));
+
+	winGame = new Sprite(Utils.loadImage("win", BACKGROUND));
+	loseGame = new Sprite(Utils.loadImage("fail", BACKGROUND));
     }
     private void initHero(){
         //hero stuff - for retro
         lives = 3;
-        kills = 0;
+        totalkills = 0;
         //  array setups
         hBulletSp = new Sprite[MAXHEROBULLETS];
         hBullet2Sp = new Sprite[MAXHEROBULLETS];
@@ -695,6 +758,7 @@ public class MainCanvas
     private void initTitleSprite(){
         titleSp = new Sprite(titleImg);
         titleSp.defineReferencePixel(titleSp.getWidth()/2, titleSp.getHeight()/2);
+	//titleSp.defineReferencePixel(65, 47);
     }
     private void createEnemies() throws IOException{
 	    enemy = new Enemy[MAXBADDIES];
@@ -814,7 +878,7 @@ public class MainCanvas
         }
 }
     private void drawDecorations(){
-        titleSp.paint(g);
+        
         g.drawImage(vImg, 0, 0, Graphics.LEFT | Graphics.TOP);
         g.drawImage(rvImg, (horCenter*2) - rvImg.getWidth() , vertCenter+100, Graphics.LEFT | Graphics.TOP);
     }

@@ -17,7 +17,7 @@ import javax.microedition.lcdui.*;
  */
 public class HighScoreSystem {
     private String url = "http://www.mcm-high-scores.appspot.com/score?game=retrovirus";
-    private String name = "Player1";
+    private String name = "test1";
     private String email = "retrovivus";
     private String response="";
     private RecordStore store;
@@ -58,7 +58,7 @@ public class HighScoreSystem {
     }
 
     //asks user permission to access web.
-    //if they say no close app.
+    //if they say no, close app.
     public boolean init() throws IOException{
 	HttpConnection h = null;
 	boolean allowed;
@@ -77,13 +77,13 @@ public class HighScoreSystem {
 	
     }
 
-    	private String getScores(String url) throws IOException {
+    	public String getScores() throws IOException {
 		StringBuffer b = new StringBuffer();
 		InputStream is = null;
 		HttpConnection con = null;
 		try {
 			// code to download data goes here...
-                        con = (HttpConnection)Connector.open( url );
+                        con = (HttpConnection)Connector.open( geturl );
                         is = con.openInputStream();
                         int ch = 0;
                         while( (ch = is.read()) != -1 )
@@ -95,4 +95,4 @@ public class HighScoreSystem {
 			con.close();
 		}
 	}
-}//eof
+}//end
