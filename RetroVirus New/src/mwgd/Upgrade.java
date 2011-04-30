@@ -42,19 +42,17 @@ public class Upgrade {
     public void upgrade(){
         switch(currentLevel){
             case Stage1:
-                MainCanvas.decreaseShotTimer(Stage1);
                 MainCanvas.increaseMaxEnemies(8);
                 currentLevel = Stage2;
                 break;
             case Stage2:
-                MainCanvas.decreaseShotTimer(Stage3);
+                MainCanvas.decreaseShotTimer(6);
                 MainCanvas.increaseMaxEnemies(10);
                 currentLevel = Stage3;
                 break;
             default:
-                MainCanvas.decreaseShotTimer(Stage1);
-                if (MainCanvas.getMaxEnemies()>12)
-                    MainCanvas.setMaxEnemies(12);
+                if (MainCanvas.getMaxEnemies()>20)
+                    MainCanvas.setMaxEnemies(20);
                 // maxed out do nothing;
                 break;
         }
@@ -62,12 +60,11 @@ public class Upgrade {
     public void downgrade(){
         switch(currentLevel){
             case Stage3:
-                MainCanvas.decreaseShotTimer(Stage2);
                 MainCanvas.setMaxEnemies(20);
                 currentLevel = Stage2;
                 break;
             case Stage2:
-                MainCanvas.decreaseShotTimer(Stage1);
+                MainCanvas.increaseShotTimer(6);
                 MainCanvas.setMaxEnemies(12);
                 currentLevel = Stage1;
                 break;

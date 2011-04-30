@@ -57,8 +57,6 @@ public class MainCanvas
     //  upgrade system
     public Upgrade             upgrade;
 
-    //  speed control, allowing this many moves per pixel
-    private static int pixelSubdivisions = 10;
 
     // title positions
     private int titlex = 200;
@@ -74,6 +72,7 @@ public class MainCanvas
     private static final int MENU = 0;
     private static final int ABOUT = 1;
     private static final int GAME = 2;
+    private static final int HIGHSCORES = 3;
     // "GAME" application state sub states;
     private int GAMESTATE;
     private static final int INTRO = 0;
@@ -111,25 +110,38 @@ public class MainCanvas
     Player gameTune;
     Player shot;
 
+    //hiscore stuff
+    private HighScoreSystem hiscore;
+    String httpmessage;
+
     //  general game variables
     private Class storedClass;
     Thread th;
     private int bulletcounter;
     private static int shotTimer;
+    private boolean WIN;
 
 
         public MainCanvas(final MainMidlet m) throws IOException{
-            super( true );
+
+	    super( true );
 	    storedClass = getClass();
             g = getGraphics();
 	    this.setFullScreenMode(true);
-
+	    
 	    MODE = MENU;
 	    GAMESTATE = INTRO;
 	    HEROSTATE = POWERONE;
 	    //assign our MainMidlet pointer
 	    parent = m;
-
+	    hiscore = new HighScoreSystem();
+	    if(!hiscore.init()){
+		try {
+		    parent.destroyApp(true);
+		} catch (MIDletStateChangeException ex) {
+		    ex.printStackTrace();
+		}
+	    }
 	    //  set the horizontal and vertical centers
             horCenter = getWidth()/2;
             vertCenter = getHeight()/2;
@@ -253,10 +265,10 @@ public class MainCanvas
 		break;
 
 	    case PLAYING:
-                if (lives == 0)
+                if (lives < 1)
                 {
                     HEROSTATE=DEAD;
-
+		    GAMESTATE = OUTRO;
                 }
 
 		if(HEROSTATE != DEAD){
@@ -322,6 +334,15 @@ public class MainCanvas
 		break;
 
 	    case OUTRO:
+		//display score
+		if(WIN){
+		    //winner sprite.show
+		    //highscore
+		    score = (int) (score * 1.5);
+		}
+		if(!WIN){
+		}
+		httpmessage = hiscore.upload(score);
 		break;
 
 	}
@@ -411,6 +432,13 @@ public class MainCanvas
 		break;
 
 	    case OUTRO:
+
+		g.setColor(0, 50, 0);
+		g.fillRect( 0, 0, getWidth(), getHeight());
+		g.setColor(255, 255, 255);
+		if(httpmessage!=null)
+		    g.drawString(httpmessage, 0, 0, 0);
+
 		break;
 
 	}
