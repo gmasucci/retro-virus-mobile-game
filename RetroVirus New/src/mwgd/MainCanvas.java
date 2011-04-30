@@ -212,13 +212,21 @@ public class MainCanvas
 		case GAME:
 		    updateGame();
 		    break;
+		case HIGHSCORES:
+		    updateHS();
+		    break;
 	    }
 
 
         }
+	private void updateHS() throws MediaException{
+	    menuTune.start();
+
+	}
+
         private void    updateAbout() throws MediaException {
-	menuTune.start();
-    }
+	    menuTune.start();
+	}
         private void    updateMenu() throws MediaException {
 	    if (titleSp!=null && titlex > (horCenter-(titleImg.getWidth()/2)))
                 titlex-=2;
@@ -457,10 +465,14 @@ public class MainCanvas
                 case GAME:
                     gameKeys();
                     break;
-                default:
+                case HIGHSCORES:
+		    hsKeys();
                     break;
 
             }
+
+    }
+    private void hsKeys(){
 
     }
     private void    aboutKeys() {
