@@ -356,14 +356,17 @@ public class MainCanvas
 		break;
 
 	    case OUTRO:
-		//display score
+		//display scoreHeight
+
 		if(WIN){
-		    score = (int) (score * 1.5);
-		}
-		if(!WIN){
+		    score = (int) (score + (totalkills*10));
 		}
 		if(!ul){
-		httpmessage = hiscore.upload(score);
+		    g.setColor(0, 64, 0);
+		    g.fillRect(0, 0, getWidth(), getHeight());
+		    g.setColor(255, 255, 255);
+		    g.drawString("Loading HighScores", 0, 0, 0);
+		    httpmessage = hiscore.upload(score);
 		}
 		ul = true;
 		break;
@@ -478,14 +481,15 @@ public class MainCanvas
 		g.setColor(255, 255, 255);
 		
 		if(httpmessage!=null){
-		    String a,b,c;
-		    if(httpmessage.length() < 23){
-			g.drawString(httpmessage, 25, 165, 0);
-		    }else if(httpmessage.length() >= 23 && httpmessage.length() < 44){
-			a = httpmessage.substring(0, 22);
-			b = httpmessage.substring(23);
-			g.drawString(a, 25, 165, 0);
-			g.drawString(b, 25, 185, 0);
+		    String a,b;
+		    g.drawString("Score:" + score + " Kills:" + totalkills, 25, 165, 0);
+		    if(httpmessage.length() < 24){
+			g.drawString(httpmessage, 25, 185, 0);
+		    }else if(httpmessage.length() >= 24 && httpmessage.length() < 44){
+			a = httpmessage.substring(0, 24);
+			b = httpmessage.substring(24);
+			g.drawString(a, 25, 185, 0);
+			g.drawString(b, 25, 205, 0);
 		    }
 		}
 		break;
