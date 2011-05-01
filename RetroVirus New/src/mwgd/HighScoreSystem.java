@@ -17,14 +17,10 @@ import javax.microedition.lcdui.*;
  */
 public class HighScoreSystem {
     private String url = "http://www.mcm-high-scores.appspot.com/score?game=retrovirus";
-    private String name = "test1";
-    private String email = "retrovivus";
+    private String name = "";
+    private String email = "retro@retro.rv";
     private String response="";
-    private RecordStore store;
-    private final String STORENAME = "Scores";
     private String geturl = "http://www.mcm-high-scores.appspot.com/scoretable?game=retrovirus";
-    TextBox t;
-
 
 
     //send score;
@@ -52,6 +48,7 @@ public class HighScoreSystem {
 
     //method called when gameover - win or lose.
     public String upload(int score) throws IOException{
+        if (this.name==null) {name ="RetroPlayer";}
         String uri = url+"&nickname="+this.name+"&email="+email+"&score="+score;
         response = uploadScore(uri);
         return response;
@@ -61,6 +58,7 @@ public class HighScoreSystem {
     //if they say no, close app.
     public boolean init() throws IOException{
 	HttpConnection h = null;
+        name = System.getProperty("user.name");
 	boolean allowed;
 	try{
 	h = (HttpConnection)Connector.open( url );
